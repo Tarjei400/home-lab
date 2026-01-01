@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: home-root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "https://github.com/tarjei400/home-lab.git"
+    targetRevision: main
+    path: gitops/clusters/home/apps
+    directory:
+      recurse: true
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
