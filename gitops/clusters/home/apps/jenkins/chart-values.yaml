@@ -1,0 +1,110 @@
+controller:
+  image:
+    tag: jdk17
+
+  serviceType: LoadBalancer
+  servicePort: 8080
+
+  serviceAnnotations: {}
+
+  installPlugins:
+    - kubernetes:4253.v7700d91739e5
+    - workflow-aggregator:600.vb_57cdd26fdd7
+    - git:5.2.2
+    - configuration-as-code:1810.v9b_c30a_249a_4c
+    - github-branch-source:1789.v5b_0c0cea_18c3
+    - kubernetes-credentials-provider:1.262.v2670ef7ea_0c5
+    - ssh-agent:367.vf9076cd4ee21
+    - blueocean:1.27.13
+    - ansicolor:1.0.4
+    - uno-choice:2.8.3
+    - parameter-separator:166.vd0120849b_386
+    - markdown-formatter:201.v7057261b_8dff
+    - build-name-setter:2.4.2
+    - sidebar-link:2.4.1
+
+  sidecars:
+    configAutoReload:
+      env:
+      - name: KUBERNETES_VERIFY_SSL
+        value: "false"
+      - name: REQ_SKIP_TLS_VERIFY
+        value: "true"
+      - name: PYTHONHTTPSVERIFY
+        value: "0"
+
+
+  containerEnv:
+    - name: JENKINS_URL
+      value: "http://jenkins.local:8080"
+
+  rbac:
+    create: true
+    readSecrets: true
+
+  serviceAccount:
+    create: true
+    name: jenkins
+
+  JCasC:
+    enabled: true
+    configScripts:
+      security: |
+        jenkins:
+          authorizationStrategy:
+            loggedInUsersCanDoAnything:
+              allowAnonymousRead: false
+          securityRealm:
+            local:
+              allowsSignup: false
+              users:
+                - id: admin
+                  password: admin
+
+      shared-library: |
+        unclassified:
+          globalLibraries:
+            libraries:
+              - name: "jenkins-shared-library"
+                retriever:
+                  modernSCM:
+                    scm:
+                      git:
+                        remote: "https://github.com/t3chy0n/jenkins-shared-library.git"
+                        credentialsId: "jenkins-github-app"
+
+  initScripts:
+    - |
+      import jenkins.model.*
+      import jenkins.branch.OrganizationFolder
+      import org.jenkinsci.plugins.github_branch_source.*
+
+      def createOrgFolder = { owner, name, topic ->
+        def jenkins = Jenkins.get()
+        if (jenkins.getItem(name)) return
+
+        def folder = jenkins.createProject(OrganizationFolder, name)
+        def nav = new GitHubSCMNavigator(owner)
+        nav.setCredentialsId("jenkins-github-app")
+        nav.setTraits([
+          new BranchDiscoveryTrait(true, false),
+          new OriginPullRequestDiscoveryTrait(1),
+          new TopicsTrait(topic)
+        ])
+        folder.getNavigators().add(nav)
+        folder.scheduleBuild2(0)
+      }
+
+      createOrgFolder("t3chy0n", "Techyon Backend", "backend")
+      createOrgFolder("t3chy0n", "Techyon Frontend", "frontend")
+      createOrgFolder("t3chy0n", "Techyon Ops", "ops")
+
+
+
+  agent:
+    enabled: true
+    podName: jenkins-agent
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "256Mi"
