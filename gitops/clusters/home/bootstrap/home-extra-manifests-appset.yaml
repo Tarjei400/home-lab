@@ -17,7 +17,7 @@ spec:
   template:
     metadata:
       # app name = parent directory of manifests/
-      name: "{{ .path.dir | base }}-manifests"
+      name: "{{ .path.path | trimSuffix \"/manifests\" | base }}-manifests"
       finalizers:
         - resources-finalizer.argocd.argoproj.io
 
@@ -32,7 +32,7 @@ spec:
       destination:
         server: https://kubernetes.default.svc
         # namespaced resources go here
-        namespace: "{{ .path.dir | base }}"
+        namespace: "{{ .path.path | trimSuffix \"/manifests\" | base }}"
 
       syncPolicy:
         automated:
@@ -40,3 +40,4 @@ spec:
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
+          - ServerSideApply=true

@@ -41,7 +41,7 @@ spec:
 
       destination:
         server: https://kubernetes.default.svc
-        namespace: "{{ default .path.basename .namespace }}"
+        namespace: "{{ default .namespace .path.basename }}"
 
       syncPolicy:
         automated:
