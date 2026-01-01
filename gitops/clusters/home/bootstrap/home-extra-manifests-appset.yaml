@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: home-app-manifests
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+
+  generators:
+    - git:
+        repoURL: https://github.com/tarjei400/home-lab.git
+        revision: master
+        directories:
+          - path: gitops/clusters/home/apps/*/manifests
+
+  template:
+    metadata:
+      # app name = parent directory of manifests/
+      name: "{{ .path.dir | base }}-manifests"
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+
+    spec:
+      project: default
+
+      source:
+        repoURL: https://github.com/tarjei400/home-lab.git
+        targetRevision: master
+        path: "{{ .path.path }}"
+
+      destination:
+        server: https://kubernetes.default.svc
+        # namespaced resources go here
+        namespace: "{{ .path.dir | base }}"
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

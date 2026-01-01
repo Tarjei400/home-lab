@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: home-helm-apps
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+
+  generators:
+    - git:
+        repoURL: https://github.com/tarjei400/home-lab.git
+        revision: master
+        files:
+          - path: gitops/clusters/home/apps/**/app.yaml
+        exclude:
+          - path: gitops/clusters/home/apps/**/manifests/**
+
+  template:
+    metadata:
+      name: "{{ .path.basename }}"
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+
+    spec:
+      project: default
+
+      sources:
+        - repoURL: "{{ .repoURL }}"
+          chart: "{{ .chart }}"
+          targetRevision: "{{ .targetRevision }}"
+          helm:
+            releaseName: "{{ default .path.basename .releaseName }}"
+            valueFiles:
+              - "$values/{{ .path.path }}/chart-values.yaml"
+            ignoreMissingValueFiles: true
+
+        - repoURL: https://github.com/tarjei400/home-lab.git
+          targetRevision: master
+          ref: values
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{ default .path.basename .namespace }}"
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

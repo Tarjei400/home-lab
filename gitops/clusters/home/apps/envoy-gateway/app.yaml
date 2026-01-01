@@ -1,0 +1,5 @@
+repoURL: "oci://docker.io/envoyproxy"
+chart: "gateway-helm"
+targetRevision: "1.6.1"
+releaseName: "gateway-envoy"
+namespace: "gateway-envoy"
