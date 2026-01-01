@@ -1,0 +1,5 @@
+repoURL: "https://m0nsterrr.github.io/homepage"
+chart: "homepage"
+targetRevision: "4.5.0"   # replace with the version you want
+releaseName: "homepage"
+namespace: "homepage"

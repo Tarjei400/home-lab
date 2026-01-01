@@ -1,0 +1,57 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/gethomepage/homepage
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  port: 3000
+
+serviceAccount:
+  create: true
+  name: ""
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 50m
+    memory: 128Mi
+
+# Homepage configuration files
+config:
+  settings.yaml:
+    title: "Homepage"
+    theme: dark
+    color: slate
+    headerStyle: boxed
+    hideVersion: false
+    language: en
+
+  bookmarks.yaml: {}
+  services.yaml: {}
+  widgets.yaml: {}
+  docker.yaml: {}
+
+# Enable config via ConfigMap
+configMap:
+  enabled: true
+
+# Optional persistence (disabled by default)
+persistence:
+  enabled: false
+
+# Ingress disabled for now
+ingress:
+  enabled: false
+
+# Security context (safe defaults)
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+
+podSecurityContext:
+  fsGroup: 1000
