@@ -1,0 +1,34 @@
+replicaCount: 1
+
+serviceDns:
+  type: LoadBalancer
+  loadBalancerIP: 192.168.32.3
+  port: 53
+
+serviceWeb:
+  type: LoadBalancer
+  loadBalancerIP: 192.168.32.4
+  port: 80
+
+dnsmasq:
+  customDnsEntries:
+    - address=/home.arpa/192.168.32.3
+    - address=/home.lab/192.168.32.3
+    - address=/home.dev/192.168.32.3
+
+env:
+  TZ: "Europe/Warsaw"
+  DNSMASQ_LISTENING: "all"
+  PIHOLE_DNS_: "1.1.1.1;8.8.8.8"
+
+persistentVolumeClaim:
+  enabled: true
+  size: 5Gi
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

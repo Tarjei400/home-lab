@@ -1,0 +1,5 @@
+repoURL: https://mojo2600.github.io/pihole-kubernetes/
+chart: pihole
+targetRevision: 2.35.0
+releaseName: pihole
+namespace: dns

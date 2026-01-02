@@ -1,5 +1,0 @@
-repoURL: https://charts.bitnami.com/bitnami
-chart: etcd
-targetRevision: 12.0.18
-releaseName: etcd
-namespace: etcd
