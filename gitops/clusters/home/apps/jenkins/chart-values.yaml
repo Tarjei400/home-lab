@@ -8,20 +8,20 @@ controller:
   serviceAnnotations: {}
 
   installPlugins:
-    - kubernetes:4253.v7700d91739e5
-    - workflow-aggregator:600.vb_57cdd26fdd7
-    - git:5.2.2
-    - configuration-as-code:1810.v9b_c30a_249a_4c
-    - github-branch-source:1789.v5b_0c0cea_18c3
-    - kubernetes-credentials-provider:1.262.v2670ef7ea_0c5
-    - ssh-agent:367.vf9076cd4ee21
-    - blueocean:1.27.13
-    - ansicolor:1.0.4
-    - uno-choice:2.8.3
-    - parameter-separator:166.vd0120849b_386
-    - markdown-formatter:201.v7057261b_8dff
-    - build-name-setter:2.4.2
-    - sidebar-link:2.4.1
+    - kubernetes:4398.vb_b_33d9e7fe23
+    - workflow-aggregator:608.v67378e9d3db_1
+    - git:5.8.1
+    - configuration-as-code:2006.v001a_2ca_6b_574
+    - github-branch-source:1925.v62fb_7ffb_08ce
+    - kubernetes-credentials-provider:1.299.v610fa_e76761a_
+    - ssh-agent:386.v36cc0c7582f0
+    - blueocean:1.27.25
+    - ansicolor:1.0.6
+    - uno-choice:2.8.8
+    - parameter-separator:296.v9b_a_90c81160d
+    - markdown-formatter:312.va_b_3dea_1413a_f
+    - build-name-setter:2.5.1
+    - sidebar-link:2.4.3
 
   sidecars:
     configAutoReload:
