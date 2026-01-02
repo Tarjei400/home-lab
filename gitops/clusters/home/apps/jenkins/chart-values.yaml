@@ -5,7 +5,8 @@ controller:
   serviceType: LoadBalancer
   servicePort: 8080
 
-  serviceAnnotations: {}
+  serviceAnnotations:
+    external-dns.alpha.kubernetes.io/hostname: jenkins.home.lab
 
   installPlugins:
     - kubernetes:4398.vb_b_33d9e7fe23

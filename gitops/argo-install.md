@@ -96,7 +96,13 @@ cd gitops/clusters/home/bootstrap/
 kubectl apply -f home-root.yaml
 ```
 
+## Nodes DNS
+
+To prevent issues with network DNS comming from router or something else 
+On each node do
+```shell
+echo -e "nameserver 1.1.1.1\nnameserver 8.8.8.8" | sudo tee /etc/resolv.conf
+```
 
 ## Reserved ips :
 192.168.32.2 -Kube API handled by kube vip
-192.168.32.3 -CoreDNS
