@@ -1,0 +1,20 @@
+provider: coredns
+
+sources:
+  - service
+  - ingress
+
+domainFilters:
+  - home.arpa
+  - home.lab
+  - home.dev
+
+policy: upsert-only
+registry: txt
+txtOwnerId: homelab
+
+env:
+  - name: ETCD_URLS
+    value: http://etcd.etcd.svc.cluster.local:2379
+
+logLevel: info

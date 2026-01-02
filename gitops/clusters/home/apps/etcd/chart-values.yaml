@@ -1,0 +1,9 @@
+replicaCount: 1
+
+persistence:
+  enabled: true
+  size: 5Gi
+
+service:
+  ports:
+    client: 2379

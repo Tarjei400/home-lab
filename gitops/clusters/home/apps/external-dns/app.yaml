@@ -1,0 +1,5 @@
+repoURL: https://kubernetes-sigs.github.io/external-dns
+chart: external-dns
+targetRevision: 9.0.3
+releaseName: external-dns
+namespace: external-dns

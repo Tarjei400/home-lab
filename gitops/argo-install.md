@@ -95,3 +95,8 @@ cd gitops/clusters/home/bootstrap/
 
 kubectl apply -f home-root.yaml
 ```
+
+
+## Reserved ips :
+192.168.32.2 -Kube API handled by kube vip
+192.168.32.3 -CoreDNS
