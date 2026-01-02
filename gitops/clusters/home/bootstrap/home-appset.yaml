@@ -44,6 +44,7 @@ spec:
         namespace: "{{ default .namespace .path.basename }}"
 
       syncPolicy:
+        applicationsSync: create-update-delete
         automated:
           prune: true
           selfHeal: true
