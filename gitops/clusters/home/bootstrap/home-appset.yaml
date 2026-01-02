@@ -41,7 +41,7 @@ spec:
 
       destination:
         server: https://kubernetes.default.svc
-        namespace: "{{ default .namespace .path.basename }}"
+        namespace: "{{ default .path.basename .namespace}}"
 
       syncPolicy:
         applicationsSync: create-update-delete
