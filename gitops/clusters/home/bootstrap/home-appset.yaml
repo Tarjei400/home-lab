@@ -13,8 +13,7 @@ spec:
         revision: master
         files:
           - path: gitops/clusters/home/apps/**/app.yaml
-        exclude:
-          - path: gitops/clusters/home/apps/**/manifests/**
+
 
   template:
     metadata:
@@ -44,7 +43,6 @@ spec:
         namespace: "{{ default .path.basename .namespace}}"
 
       syncPolicy:
-        applicationsSync: create-update-delete
         automated:
           prune: true
           selfHeal: true

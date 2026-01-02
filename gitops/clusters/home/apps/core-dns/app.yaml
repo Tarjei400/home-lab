@@ -2,4 +2,4 @@ repoURL: https://coredns.github.io/helm
 chart: coredns
 targetRevision: 1.45.0
 releaseName: coredns-home
-namespace: kube-system
+namespace: core-dns
