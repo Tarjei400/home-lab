@@ -34,10 +34,11 @@ servers:
         parameters: 30
       - name: reload
 
-  - zones:
-      - zone: .
-    port: 53
-    plugins:
-      - name: forward
-        parameters: . 1.1.1.1 8.8.8.8
-      - name: cache
+#
+#  - zones:
+#      - zone: .
+#    port: 53
+#    plugins:
+#      - name: forward
+#        parameters: . 1.1.1.1 8.8.8.8
+#      - name: cache
