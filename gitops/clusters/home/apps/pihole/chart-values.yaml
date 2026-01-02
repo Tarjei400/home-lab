@@ -5,15 +5,25 @@ serviceDns:
   loadBalancerIP: 192.168.32.53
   port: 53
 
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+
 serviceWeb:
+
   type: LoadBalancer
   port: 80
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
 
 dnsmasq:
   customDnsEntries:
-    - address=/home.arpa/192.168.32.3
-    - address=/home.lab/192.168.32.3
-    - address=/home.dev/192.168.32.3
+    - address=/k8s-1.home/192.168.33.3
+    - address=/k8s-2.home/192.168.33.2
+    - address=/k8s-3.home/192.168.33.7
+    - address=/mikrotik.home/192.168.33.19
+    - address=/nas.home/192.168.33.14
+    - address=/pc.home/192.168.33.8
+    - address=/192.168.33.1/192.168.33.1
 
 env:
   TZ: "Europe/Warsaw"
