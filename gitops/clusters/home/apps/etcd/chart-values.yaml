@@ -1,3 +1,11 @@
+auth:
+  rbac:
+    create: false
+  client:
+    secureTransport: false
+  peer:
+    secureTransport: false
+
 replicaCount: 1
 
 persistence:
