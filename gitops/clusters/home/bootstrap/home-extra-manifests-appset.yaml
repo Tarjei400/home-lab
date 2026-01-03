@@ -11,13 +11,12 @@ spec:
     - git:
         repoURL: https://github.com/tarjei400/home-lab.git
         revision: master
-        directories:
-          - path: gitops/clusters/home/apps/*/manifests
+        files:
+          - path: gitops/clusters/home/apps/*/app.yaml
 
   template:
     metadata:
-      # app name = parent directory of manifests/
-      name: "{{ .path.path | trimSuffix \"/manifests\" | base }}-manifests"
+      name: "{{ .path.basename }}-manifests"
       finalizers:
         - resources-finalizer.argocd.argoproj.io
       annotations:
@@ -29,12 +28,11 @@ spec:
       source:
         repoURL: https://github.com/tarjei400/home-lab.git
         targetRevision: master
-        path: "{{ .path.path }}"
+        path: "gitops/clusters/home/apps/{{ .path.basename }}/manifests"
 
       destination:
         server: https://kubernetes.default.svc
-        # namespaced resources go here
-        namespace: "{{ .path.path | trimSuffix \"/manifests\" | base }}"
+        namespace: "{{ default .path.basename .namespace }}"
 
       syncPolicy:
         automated:
@@ -43,9 +41,9 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
-      retry:
-        limit: 10
-        backoff:
-          duration: 15s
-          factor: 2
-          maxDuration: 10m
+        retry:
+          limit: 10
+          backoff:
+            duration: 15s
+            factor: 2
+            maxDuration: 10m
