@@ -106,3 +106,58 @@ echo -e "nameserver 1.1.1.1\nnameserver 8.8.8.8" | sudo tee /etc/resolv.conf
 
 ## Reserved ips :
 192.168.32.2 -Kube API handled by kube vip
+
+
+## Accessing GCP Secrets
+
+Create service account :
+
+```shell
+gcloud iam service-accounts create eso-gsm \
+  --description="External Secrets Operator access to GSM" \
+  --display-name="eso-gsm"
+```
+
+Create read permission
+```shell
+gcloud projects add-iam-policy-binding <PROJECT_ID> \
+  --member="serviceAccount:eso-gsm@<PROJECT_ID>.iam.gserviceaccount.com" \
+  --role="roles/secretmanager.secretAccessor"
+  ```
+
+
+Download key file
+```shell
+gcloud iam service-accounts keys create eso-gsm-key.json \
+  --iam-account=eso-gsm@<PROJECT_ID>.iam.gserviceaccount.com
+  
+```
+
+Create secret in `secrets` namespace for external secrets to use
+```shell
+kubectl create secret generic gsm-sa-key \
+  --namespace secrets \
+  --from-file=key.json=eso-gsm-key.json
+```
+
+Create service account :
+
+```shell
+gcloud iam service-accounts create eso-gsm \
+  --description="External Secrets Operator access to GSM" \
+  --display-name="eso-gsm"
+```
+
+Create read permission
+```shell
+gcloud projects add-iam-policy-binding techyon-393614 \
+  --member="serviceAccount:eso-gsm@techyon-393614.iam.gserviceaccount.com" \
+  --role="roles/secretmanager.secretAccessor"
+  ```
+
+
+Download 
+```shell
+gcloud iam service-accounts keys create eso-gsm-key.json \
+  --iam-account=eso-gsm@techyon-393614.iam.gserviceaccount.com
+```

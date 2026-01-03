@@ -1,0 +1,5 @@
+repoURL: "https://1password.github.io/connect-helm-charts"
+chart: "connect"
+targetRevision: "2.1.1"
+releaseName: "1password-connect"
+namespace: "secrets"

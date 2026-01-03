@@ -1,0 +1,5 @@
+repoURL: https://charts.external-secrets.io
+chart: external-secrets
+targetRevision: 1.2.1
+releaseName: external-secrets
+namespace: secrets
