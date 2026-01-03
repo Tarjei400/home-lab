@@ -1,5 +1,5 @@
 connect:
-  credentials: |
-    ${onePasswordJsonConfig.secretData}
+  credentialsName: one-password-credentials
+  credentialsKey: credentials.json
 
   serviceType: ClusterIP
