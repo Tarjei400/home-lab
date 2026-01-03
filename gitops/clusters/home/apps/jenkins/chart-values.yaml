@@ -96,9 +96,9 @@ controller:
         folder.scheduleBuild2(0)
       }
 
-      createOrgFolder("t3chy0n", "Techyon Backend", "backend")
-      createOrgFolder("t3chy0n", "Techyon Frontend", "frontend")
-      createOrgFolder("t3chy0n", "Techyon Ops", "ops")
+      createOrgFolder("t3chy0n", "Backend", "backend")
+      createOrgFolder("t3chy0n", "Frontend", "frontend")
+      createOrgFolder("t3chy0n", "Ops", "ops")
 
 
 
