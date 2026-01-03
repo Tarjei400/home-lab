@@ -1,6 +1,6 @@
 controller:
   image:
-    tag: jdk17
+    tag: jdk25
 
   serviceType: LoadBalancer
   servicePort: 8080
@@ -85,6 +85,8 @@ controller:
         if (jenkins.getItem(name)) return
 
         def folder = jenkins.createProject(OrganizationFolder, name)
+        folder.setDisplayName(name)
+      
         def nav = new GitHubSCMNavigator(owner)
         nav.setCredentialsId("jenkins-github-app")
         nav.setTraits([
@@ -96,10 +98,10 @@ controller:
         folder.scheduleBuild2(0)
       }
 
-      createOrgFolder("t3chy0n", "Backend", "backend")
-      createOrgFolder("t3chy0n", "Frontend", "frontend")
-      createOrgFolder("t3chy0n", "Ops", "ops")
-
+      createOrgFolder("t3chy0n", "Techyon Backend", "backend")
+      createOrgFolder("t3chy0n", "Techyon Frontend", "frontend")
+      createOrgFolder("t3chy0n", "Techyon Ops", "ops")
+      createOrgFolder("t3chy0n", "Techyon Open-Source", "open-source")
 
 
   agent:
