@@ -1,57 +1,108 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/gethomepage/homepage
-  tag: latest
+  registry: ghcr.io
+  repository: gethomepage/homepage
   pullPolicy: IfNotPresent
 
-service:
-  type: LoadBalancer
-  port: 3000
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# -- Environment variables to add to the kea-exporter pods
+extraEnv: []
+# -- Environment variables from secrets or configmaps to add to the kea-exporter pods
+extraEnvFrom: []
+
+config:
+  # -- List of allowed hosts (sometimes with the port) that can host your homepage install
+  # -- see https://gethomepage.dev/installation/#homepage_allowed_hosts
+  #TODO: After setting ingress remove add its domain here
+  allowedHosts: ['192.168.32.13']
 
 serviceAccount:
+  # -- Specifies whether a service account should be created
   create: true
+  # -- Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- The name of the service account to use.
+  # -- If not set and create is true, a name is generated using the fullname template
   name: ""
 
-resources:
-  limits:
-    cpu: 200m
-    memory: 256Mi
-  requests:
-    cpu: 50m
-    memory: 128Mi
-
-# Homepage configuration files
-config:
-  settings.yaml:
-    title: "Homepage"
-    theme: dark
-    color: slate
-    headerStyle: boxed
-    hideVersion: false
-    language: en
-
-  bookmarks.yaml: {}
-  services.yaml: {}
-  widgets.yaml: {}
-  docker.yaml: {}
-
-# Enable config via ConfigMap
-configMap:
-  enabled: true
-
-# Optional persistence (disabled by default)
-persistence:
-  enabled: false
-
-# Ingress disabled for now
-ingress:
-  enabled: false
-
-# Security context (safe defaults)
-securityContext:
-  runAsNonRoot: true
-  runAsUser: 1000
+podAnnotations: {}
+podLabels: {}
 
 podSecurityContext:
   fsGroup: 1000
+  fsGroupChangePolicy: OnRootMismatch
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  privileged: false
+  runAsUser: 1000
+  runAsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+service:
+  type: LoadBalancer
+  port: 80
+
+ingress:
+  enabled: false
+  ingressClassName: ""
+  annotations:
+    {}
+    # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+rbac:
+  enabled: true
+
+resources:
+  {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+#   memory: 128Mi
+
+# -- Additional volumes on the output Deployment definition.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# -- Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
