@@ -20,6 +20,8 @@ spec:
       name: "{{ .path.path | trimSuffix \"/manifests\" | base }}-manifests"
       finalizers:
         - resources-finalizer.argocd.argoproj.io
+      annotations:
+        argocd.argoproj.io/sync-wave: "10"
 
     spec:
       project: default
@@ -41,3 +43,9 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
+      retry:
+        limit: 10
+        backoff:
+          duration: 15s
+          factor: 2
+          maxDuration: 10m
