@@ -25,3 +25,51 @@ server:
       - hosts:
           - argoci.lab.techyon.dev
         secretName: argo-workflows-tls
+  authModes:
+    - server
+  sso:
+    # -- Create SSO configuration. If you set `true` , please also set `.Values.server.authModes` as `sso`.
+    enabled: false
+    # -- The root URL of the OIDC identity provider
+    issuer: https://accounts.google.com
+    clientId:
+      name: google-oidc-client
+      key: client-id
+    clientSecret:
+      name: google-oidc-client
+      key: client-secret
+    # -- The OIDC redirect URL. Should be in the form <argo-root-url>/oauth2/callback.
+    redirectUrl: "https://argoci.lab.techyon.dev/oauth2/callback"
+    rbac:
+      # -- Adds ServiceAccount Policy to server (Cluster)Role.
+      enabled: true
+      # -- Whitelist to allow server to fetch Secrets
+      ## When present, restricts secrets the server can read to a given list.
+      ## You can use it to restrict the server to only be able to access the
+      ## service account token secrets that are associated with service accounts
+      ## used for authorization.
+      secretWhitelist: [ ]
+    # -- Scopes requested from the SSO ID provider
+    ## The 'groups' scope requests group membership information, which is usually used for authorization decisions.
+    scopes:
+      - openid
+      - https://www.googleapis.com/auth/userinfo.email
+      - https://www.googleapis.com/auth/userinfo.profile
+    # - groups
+    # -- Define how long your login is valid for (in hours)
+    ## If omitted, defaults to 10h.
+    sessionExpiry: ""
+    # -- Alternate root URLs that can be included for some OIDC providers
+    issuerAlias: ""
+    # -- Override claim name for OIDC groups
+    customGroupClaimName: ""
+    # -- Specify the user info endpoint that contains the groups claim
+    ## Configure this if your OIDC provider provides groups information only using the user-info endpoint (e.g. Okta)
+    userInfoPath: https://www.googleapis.com/oauth2/v1/userinfo
+    # -- Skip TLS verification for the HTTP client
+    insecureSkipVerify: false
+    # -- Filter the groups returned by the OIDC provider
+    ## A logical "OR" is used between each regex in the list
+    filterGroupsRegex: [ ]
+    # - ".*argo-wf.*"
+    # - ".*argo-workflow.*"

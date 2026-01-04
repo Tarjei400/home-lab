@@ -44,8 +44,8 @@ controller:
     readSecrets: true
 
   serviceAccount:
-    create: true
-    name: jenkins
+    create: false
+    name: jenkins-ksa
 
   JCasC:
     enabled: true
