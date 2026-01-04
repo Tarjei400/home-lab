@@ -7,7 +7,7 @@ spec:
     server: https://acme-v02.api.letsencrypt.org/directory
     email: adrian.jutrowski@techyon.dev
     privateKeySecretRef:
-      name: cloudflare-dns
+      name: cloudflare-ca
     solvers:
       - dns01:
           cloudflare:
