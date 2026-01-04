@@ -111,3 +111,17 @@ controller:
       requests:
         cpu: "200m"
         memory: "256Mi"
+
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+
+    annotations:
+      kubernetes.io/ingress.class: nginx
+
+    hostName: jenkins.home.arpa
+
+    tls:
+      - secretName: homelab-wildcard-tls
+        hosts:
+          - jenkins.home.arpa
