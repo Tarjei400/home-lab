@@ -110,7 +110,7 @@ echo -e "nameserver 1.1.1.1\nnameserver 8.8.8.8" | sudo tee /etc/resolv.conf
 
 ## Accessing GCP Secrets
 
-Create service account :
+### Create service account :
 
 ```shell
 gcloud iam service-accounts create eso-gsm \
@@ -118,7 +118,7 @@ gcloud iam service-accounts create eso-gsm \
   --display-name="eso-gsm"
 ```
 
-Create read permission
+### Create read permission
 ```shell
 gcloud projects add-iam-policy-binding techyon-393614 \
   --member="serviceAccount:eso-gsm@techyon-393614.iam.gserviceaccount.com" \
@@ -126,7 +126,7 @@ gcloud projects add-iam-policy-binding techyon-393614 \
   ```
 
 
-Download key file
+### Download key file
 ```shell
 gcloud iam service-accounts keys create eso-gsm-key.json \
   --iam-account=eso-gsm@techyon-393614.iam.gserviceaccount.com
@@ -139,3 +139,20 @@ kubectl create secret generic gsm-sa-key \
   --namespace secrets \
   --from-file=key.json=eso-gsm-key.json
 ```
+
+
+# Creating in cluster CA
+### Generate CA key and certificate
+```shell
+openssl genrsa -out homelab-root-ca.key 4096
+
+openssl req -x509 -new -nodes \
+  -key homelab-root-ca.key \
+  -sha256 \
+  -days 3650 \
+  -out homelab-root-ca.crt \
+  -subj "/CN=Homelab Root CA"
+  
+```
+
+###
