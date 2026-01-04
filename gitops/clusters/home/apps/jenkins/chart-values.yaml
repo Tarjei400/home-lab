@@ -119,9 +119,9 @@ controller:
     annotations:
       kubernetes.io/ingress.class: nginx
 
-    hostName: jenkins.home.arpa
+    hostName: jenkins.lab.dev
 
     tls:
       - secretName: homelab-wildcard-tls
         hosts:
-          - jenkins.home.arpa
+          - jenkins.lab.dev

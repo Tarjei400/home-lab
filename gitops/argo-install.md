@@ -155,4 +155,13 @@ openssl req -x509 -new -nodes \
   
 ```
 
-###
+### Add CA cert to trusted ones :
+```shell
+sudo cp homelab-root-ca.crt /usr/local/share/ca-certificates/
+sudo chmod 644 /usr/local/share/ca-certificates/homelab-root-ca.crt
+
+```
+
+```shell
+sudo update-ca-certificates
+```
