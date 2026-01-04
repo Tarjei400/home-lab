@@ -119,6 +119,11 @@ controller:
     annotations:
       kubernetes.io/ingress.class: nginx
       cert-manager.io/cluster-issuer: cloudflare-ca
+      gethomepage.dev/description: CI/CD server
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/group: CI
+      gethomepage.dev/icon: jenkins.png
+      gethomepage.dev/name: Jenkins
 
     hostName: jenkins.lab.techyon.dev
 
