@@ -118,10 +118,11 @@ controller:
 
     annotations:
       kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: cloudflare-ca
 
     hostName: jenkins.lab.techyon.dev
 
     tls:
-      - secretName: homelab-wildcard-tls
+      - secretName: jenkins-tls
         hosts:
           - jenkins.lab.techyon.dev
