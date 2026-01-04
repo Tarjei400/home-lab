@@ -3,8 +3,25 @@ crds:
   keep: false
 
 server:
-#  ingress: {}
-  #Todo USE Ingress or Gateway
-  serviceType: LoadBalancer
-  # -- Service port for server
-  servicePort: 80
+  serviceType: ClusterIP
+
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: cloudflare-ca
+      gethomepage.dev/description: CI Server
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/group: CI/CD
+      gethomepage.dev/icon: argo-cd.png
+      gethomepage.dev/name: Argo Workflows
+
+
+    hosts:
+      - argoci.lab.techyon.dev
+    tls:
+      - hosts:
+          - argoci.lab.techyon.dev
+        secretName: argo-workflows-tls

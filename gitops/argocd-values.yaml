@@ -10,9 +10,28 @@ configs:
 
 server:
   service:
-    type: LoadBalancer
+    type: ClusterIP
     # Optional: pin an IP from your MetalLB pool (recommended)
     # loadBalancerIP: 192.168.32.50
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: cloudflare-ca
+      gethomepage.dev/description: CD server
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/group: CI/CD
+      gethomepage.dev/icon: argo-cd.png
+      gethomepage.dev/name: ArgoCD
+
+
+    hostname: argocd.lab.techyon.dev
+    extraTls:
+      - hosts:
+        - argocd.lab.techyon.dev
+        secretName: argocd-tls
 
   # Optional quality-of-life if you later expose via ingress:
   # extraArgs:
