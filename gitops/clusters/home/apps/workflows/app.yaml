@@ -1,0 +1,5 @@
+repoURL: https://argoproj.github.io/argo-helm
+chart: argo-workflows
+targetRevision: 0.46.2
+releaseName: argo-workflows
+namespace: workflows

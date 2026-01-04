@@ -1,0 +1,10 @@
+crds:
+  full: true
+  keep: false
+
+server:
+#  ingress: {}
+  #Todo USE Ingress or Gateway
+  serviceType: LoadBalancer
+  # -- Service port for server
+  servicePort: 80
