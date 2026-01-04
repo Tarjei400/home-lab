@@ -1,0 +1,50 @@
+logLevel: debug
+nameOverride: external-dns-cloudflare
+policy: upsert-only
+
+## Watch these resources for new DNS records
+sources:
+  - pod
+  - service
+  - ingress
+  - gateway-httproute
+  - gateway-grpcroute
+  - gateway-tcproute
+  - gateway-tlsroute
+  - gateway-udproute
+
+
+provider: cloudflare
+
+cloudflare:
+  proxied: false
+
+extraEnvVars:
+  - name: CF_API_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: cloudflare-access-token
+        key: token
+        optional: true
+
+  - name: CF_API_EMAIL
+    value: adrian.jutrowski@techyon.dev
+
+domainFilters: ["techyon.dev"]
+
+registry: "txt"
+txtOwnerId: "home-lab"
+
+## Limit external-dns resources
+resources:
+  limits:
+    memory: 50Mi
+  requests:
+    memory: 50Mi
+    cpu: 10m
+
+## ensure RBAC is enabled
+rbac:
+  create: true
+  clusterRole: true
+  apiVersion: v1

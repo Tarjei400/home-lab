@@ -12,7 +12,6 @@ domainFilters:
   - home.arpa
   - home.lab
   - home.dev
-  - lab.techyon.dev
 
 extraArgs:
   - --pihole-api-version=6
