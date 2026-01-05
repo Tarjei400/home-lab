@@ -10,12 +10,13 @@ controller:
 
   installPlugins:
     - kubernetes:4398.vb_b_33d9e7fe23
+    - kubernetes-credentials-provider:1.299.v610fa_e76761a_
     - workflow-aggregator:608.v67378e9d3db_1
     - git:5.8.1
-    - google-storage-plugin:1.372.vdb_857a_f19629
     - configuration-as-code:2006.v001a_2ca_6b_574
     - github-branch-source:1925.v62fb_7ffb_08ce
-    - kubernetes-credentials-provider:1.299.v610fa_e76761a_
+    - google-login:109.v022b_cf87b_e5b_
+    - google-storage-plugin:1.372.vdb_857a_f19629
     - ssh-agent:386.v36cc0c7582f0
     - blueocean:1.27.25
     - ansicolor:1.0.6
@@ -132,6 +133,7 @@ controller:
 
     hostName: jenkins.lab.techyon.dev
 
+    path: /
     tls:
       - secretName: jenkins-tls
         hosts:
