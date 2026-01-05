@@ -88,7 +88,10 @@ helm install argocd argo/argo-cd \
   -n argocd \
   -f argo-values.yaml
 ```
-
+Add secret to be able to pull charts from Artifact Registry
+```shell
+k apply -f gitops/argo-cd-helm.secret.yaml
+```
 ## Apply bootstrap Applications
 ```shell
 cd gitops/clusters/home/bootstrap/
@@ -156,7 +159,13 @@ gcloud projects add-iam-policy-binding techyon-393614 \
   --member="serviceAccount:jenkins-artifact-registery@techyon-393614.iam.gserviceaccount.com" \
   --role="roles/artifactregistry.reader"
   
-  
+-- BIND AT REPOSITORY LEVEL ASWELL  
+
+gcloud artifacts repositories add-iam-policy-binding helm \
+  --location=europe-southwest1 \
+  --project=techyon-393614 \
+  --member="serviceAccount:jenkins-artifact-registery@techyon-393614.iam.gserviceaccount.com" \
+  --role="roles/artifactregistry.reader"
 ```
 
 ### Get json key

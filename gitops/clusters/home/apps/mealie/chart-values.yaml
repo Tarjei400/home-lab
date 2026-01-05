@@ -1,0 +1,72 @@
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 9000
+
+ingress:
+  enabled: true
+  className: nginx
+
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: cloudflare-ca
+    gethomepage.dev/description: Recipe manager
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/group: Home
+    gethomepage.dev/icon: mealie.png
+    gethomepage.dev/name: CookBook
+
+
+  hosts:
+    - mealie.lab.techyon.dev
+  tls:
+    - hosts:
+        - mealie.lab.techyon.dev
+      secretName: mealie-tls
+
+httpRoute:
+  enabled: false
+
+resources:
+  limits:
+    memory: 1000Mi
+  requests:
+    cpu: 100m
+    memory: 512Mi
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+autoscaling:
+  enabled: false
+
+# --- Mealie specific ---
+
+env:
+  ALLOW_SIGNUP: "false"
+  PUID: "1000"
+  PGID: "1000"
+  TZ: "Europe/Warsaw"
+  BASE_URL: "https://mealie.yourdomain.com"
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  storageClass: ""
+  mountPath: /app/data
+
+volumes: []
+volumeMounts: []
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
