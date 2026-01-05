@@ -140,6 +140,31 @@ kubectl create secret generic gsm-sa-key \
   --from-file=key.json=eso-gsm-key.json
 ```
 
+## Allowing Jenkins to push images to Artifact Registry
+```shell
+### Create service account
+gcloud iam service-accounts create jenkins-artifact-registery \
+--display-name "Jenkins Docker Builder"
+```
+### Bind permissions to service account
+```shell
+gcloud projects add-iam-policy-binding techyon-393614 \
+  --member="serviceAccount:jenkins-artifact-registery@techyon-393614.iam.gserviceaccount.com" \
+  --role="roles/artifactregistry.writer"
+  
+gcloud projects add-iam-policy-binding techyon-393614 \
+  --member="serviceAccount:jenkins-artifact-registery@techyon-393614.iam.gserviceaccount.com" \
+  --role="roles/artifactregistry.reader"
+  
+  
+```
+
+### Get json key
+```shell
+gcloud iam service-accounts keys create jenkinsArtifactRegistry.json \
+  --iam-account jenkins-artifact-registery@techyon-393614.iam.gserviceaccount.com
+```
+
 
 # Creating in cluster CA
 ### Generate CA key and certificate
