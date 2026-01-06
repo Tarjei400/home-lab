@@ -1,5 +1,5 @@
-repoURL: "oci://europe-southwest1-docker.pkg.dev/techyon-393614/helm/mealie"
+repoURL: "https://charts.lab.techyon.dev"
 chart: "mealie"
-targetRevision: "0.1.0"
+targetRevision: "0.1.1"
 releaseName: "mealie"
 namespace: "home-utils"
