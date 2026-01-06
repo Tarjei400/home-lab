@@ -18,13 +18,15 @@ ingress:
     tls: true
     tlsSecret: charts-tls
 
-gcp:
-  secret:
-    enabled: false
-    name: artifact-registry-helm
-    key: service-account.json
-
 env:
   storage: google
   open:
     STORAGE_GOOGLE_BUCKET: techyon-393614-charts
+    STORAGE_GOOGLE_PREFIX: charts
+    ENABLE_OCI_API: "true"
+
+gcp:
+  secret:
+    enabled: true
+    name: artifact-registry-helm
+    key: service-account.json
