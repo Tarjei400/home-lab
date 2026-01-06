@@ -7,8 +7,8 @@ ingress:
     cert-manager.io/cluster-issuer: cloudflare-ca
     gethomepage.dev/description: Helm Chart Repository
     gethomepage.dev/enabled: "true"
-    gethomepage.dev/group: Administration
-    gethomepage.dev/icon: mealie.png
+    gethomepage.dev/group: CI/CD
+    gethomepage.dev/icon: helm.png
     gethomepage.dev/name: Chartmuseum
 
 

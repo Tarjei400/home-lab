@@ -10,7 +10,7 @@ configs:
 
 server:
   service:
-    type: ClusterIP
+    type: LoadBalancer
     # Optional: pin an IP from your MetalLB pool (recommended)
     # loadBalancerIP: 192.168.32.50
   ingress:

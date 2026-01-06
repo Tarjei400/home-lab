@@ -104,7 +104,18 @@ kubectl apply -f home-root.yaml
 To prevent issues with network DNS comming from router or something else 
 On each node do
 ```shell
-echo -e "nameserver 1.1.1.1\nnameserver 8.8.8.8" | sudo tee /etc/resolv.conf
+sudo nano /etc/systemd/resolved.conf
+
+Put :
+[Resolve]
+DNS=1.1.1.1 8.8.8.8
+FallbackDNS=8.8.4.4
+DNSStubListener=yes
+
+
+
+sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+sudo systemctl restart systemd-resolved
 ```
 
 ## Reserved ips :
