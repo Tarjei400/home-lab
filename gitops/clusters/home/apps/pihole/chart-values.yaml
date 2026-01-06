@@ -1,9 +1,9 @@
-replicaCount: 2
+replicaCount: 1
 
-antiaff:
-  enabled: true
-  avoidRelease: pihole
-  strict: false
+#antiaff:
+#  enabled: true
+#  avoidRelease: pihole
+#  strict: false
 
 serviceDns:
   type: LoadBalancer
