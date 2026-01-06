@@ -9,6 +9,7 @@ ingress:
   className: nginx
 
   annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: cloudflare-ca
     gethomepage.dev/description: Recipe manager
