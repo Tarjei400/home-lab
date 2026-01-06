@@ -1,6 +1,6 @@
 controller:
   image:
-    tag: jdk21
+    tag: jdk25
 
   serviceType: LoadBalancer
   servicePort: 8080
@@ -113,6 +113,8 @@ controller:
   agent:
     enabled: true
     podName: jenkins-agent
+    image:
+      tag: jdk25
     resources:
       requests:
         cpu: "200m"
