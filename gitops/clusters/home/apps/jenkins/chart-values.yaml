@@ -1,6 +1,6 @@
 controller:
   image:
-    tag: jdk25
+    tag: jdk21
 
   serviceType: LoadBalancer
   servicePort: 8080

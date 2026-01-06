@@ -11,7 +11,6 @@ ingress:
     gethomepage.dev/icon: helm.png
     gethomepage.dev/name: Chartmuseum
 
-
   hosts:
   - name: charts.lab.techyon.dev
     path: /
