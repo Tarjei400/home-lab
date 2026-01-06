@@ -3,7 +3,7 @@ replicaCount: 2
 antiaff:
   enabled: true
   avoidRelease: pihole
-  strict: true
+  strict: false
 
 serviceDns:
   type: LoadBalancer
