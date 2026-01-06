@@ -10,7 +10,7 @@ controller:
 
   installPlugins:
     - kubernetes:4398.vb_b_33d9e7fe23
-    - kubernetes-credentials-provider:1.299.v610fa_e76761a_
+    - kubernetes-credentials-provider:1.301.v2eed6d439a_79
     - workflow-aggregator:608.v67378e9d3db_1
     - git:5.8.1
     - configuration-as-code:2006.v001a_2ca_6b_574
@@ -55,6 +55,7 @@ controller:
 
   JCasC:
     enabled: true
+
     configScripts:
       security: |
         jenkins:
@@ -110,16 +111,6 @@ controller:
       createOrgFolder("t3chy0n", "Techyon Open-Source", "open-source")
 
 
-  agent:
-    enabled: true
-    podName: jenkins-agent
-    image:
-      tag: jdk25
-    resources:
-      requests:
-        cpu: "200m"
-        memory: "256Mi"
-
   ingress:
     enabled: true
     ingressClassName: nginx
@@ -140,3 +131,14 @@ controller:
       - secretName: jenkins-tls
         hosts:
           - jenkins.lab.techyon.dev
+
+agent:
+  enabled: true
+  podName: jenkins-agent
+  jenkinsUrl: https://jenkins.lab.techyon.dev
+  image:
+    tag: "jdk25"
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
