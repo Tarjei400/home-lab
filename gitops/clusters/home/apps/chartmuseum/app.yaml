@@ -1,0 +1,5 @@
+repoURL: "https://chartmuseum.github.io/charts"
+chart: "chartmuseum"
+targetRevision: "3.10.4"
+releaseName: "chartmuseum"
+namespace: "chartmuseum"

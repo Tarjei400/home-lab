@@ -159,13 +159,20 @@ gcloud projects add-iam-policy-binding techyon-393614 \
   --member="serviceAccount:jenkins-artifact-registery@techyon-393614.iam.gserviceaccount.com" \
   --role="roles/artifactregistry.reader"
   
--- BIND AT REPOSITORY LEVEL ASWELL  
 
-gcloud artifacts repositories add-iam-policy-binding helm \
-  --location=europe-southwest1 \
-  --project=techyon-393614 \
+
+--For Chartsmueseum to be able to read and write charts to bucket :
+
+# Write-only
+gcloud storage buckets add-iam-policy-binding gs://techyon-393614-charts \
   --member="serviceAccount:jenkins-artifact-registery@techyon-393614.iam.gserviceaccount.com" \
-  --role="roles/artifactregistry.reader"
+  --role="roles/storage.objectCreator"
+
+# Read-only
+gcloud storage buckets add-iam-policy-binding gs://techyon-393614-charts \
+  --member="serviceAccount:jenkins-artifact-registery@techyon-393614.iam.gserviceaccount.com" \
+  --role="roles/storage.objectViewer"
+  
 ```
 
 ### Get json key
