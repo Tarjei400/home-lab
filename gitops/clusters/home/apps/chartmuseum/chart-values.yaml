@@ -24,6 +24,7 @@ env:
     STORAGE_GOOGLE_BUCKET: techyon-393614-charts
     STORAGE_GOOGLE_PREFIX: charts
     ENABLE_OCI_API: "true"
+    DISABLE_API: "false"
 
 gcp:
   secret:
