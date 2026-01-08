@@ -13,15 +13,13 @@ spec:
     method: true
   storage: # Required. Define one or more virtual pools.
     - serviceLevel: pool1 # Required. Name your virtual pool.
-      storagePools:
-        "Storage Pool 1": { }   # ← REQUIRED
+
       labels: # Required. Define custom labels for your virtual pool.
         performance: performance1
-      features: # Optional. Define features for your virtual pool.
-        tiering: Enable
+#      features: # Optional. Define features for your virtual pool.
+#        tiering: Enable
     - serviceLevel: pool2
-      storagePools:
-        "Storage Pool 1": { }   # ← REQUIRED
+
       labels:
         performance: performance2
       features:
