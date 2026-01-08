@@ -22,5 +22,4 @@ spec:
         performance: performance2
       features:
         tiering: Enable
-        ssdCache: "true"
         raidLevel: "1"
