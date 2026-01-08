@@ -1,0 +1,13 @@
+replicaCount: 1
+
+tridentOperator:
+  image: qnapsystem/qnap-csi-operator:v1.5.2
+  cgiServerImage : qnapsystem/qnap-csi-backend-qts-sidecar:v1.5.2
+  imagePullPolicy: IfNotPresent
+  logLevel: debug
+
+tridentOrchestrator:
+  image: qnapsystem/qnap-csi:v1.5.2
+  debug: true
+
+forceInstallRancherClusterRoles: false

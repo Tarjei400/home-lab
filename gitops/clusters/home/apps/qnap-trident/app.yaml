@@ -1,0 +1,5 @@
+repoURL: "https://charts.lab.techyon.dev"
+chart: "qnap-trident"
+targetRevision: "0.1.0"
+releaseName: "qnap-trident"
+namespace: "storage"
