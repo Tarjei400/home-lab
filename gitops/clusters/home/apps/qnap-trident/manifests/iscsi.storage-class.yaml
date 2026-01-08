@@ -1,0 +1,10 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: qnap-iscsi # Required. Name your storageclass.
+provisioner: csi.trident.qnap.io
+parameters:
+  selector: "performance=performance1" # Required. Corresponds to the labels in the virtual pool.
+  fsType: "ext4" # Optional. You can choose to enter ext4 (default), xfs, or ext3.
+  replacementTimeout: '120' # Optional. Define the iSCSI timeout, with a default value of 120 seconds
+allowVolumeExpansion: true
