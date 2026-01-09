@@ -7,7 +7,7 @@ spec:
   storageDriverName: qnap-nas #Required. Support 'qnap-nas'(latest) or 'qnap-iscsi'
   backendName: qts # Required. Name your backend in QNAP CSI.
 
-  managementLIF: http://192.168.33.14:8080
+  managementLIF: http://192.168.33.14:8080 #Not Sure but this might have made it work due to HTTP insecure protocol. For home lab its okay
   dataLIF: 192.168.33.14
 #  networkInterfaces: ["Adapter1"] # Optional. Your adapter name or leave it empty.
   credentials:
