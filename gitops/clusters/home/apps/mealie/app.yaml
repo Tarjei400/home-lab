@@ -1,5 +1,5 @@
 repoURL: "https://charts.lab.techyon.dev"
 chart: "mealie"
-targetRevision: "0.1.1"
+targetRevision: "0.1.2"
 releaseName: "mealie"
 namespace: "home-utils"
