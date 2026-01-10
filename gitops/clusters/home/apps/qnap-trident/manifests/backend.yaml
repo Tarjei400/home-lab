@@ -10,6 +10,11 @@ spec:
   managementLIF: http://192.168.33.14:8080 #Not Sure but this might have made it work due to HTTP insecure protocol. For home lab its okay
   dataLIF: 192.168.33.14
 #  networkInterfaces: ["Adapter1"] # Optional. Your adapter name or leave it empty.
+
+  defaults:
+    nameTemplate: "{{ .config.StoragePrefix }}_{{ .volume.Namespace }}_{{ .volume.RequestName }}"
+    labels: { "Namespace": "{{.volume.Namespace}}", "PVC": "{{.volume.RequestName}}"}
+
   credentials:
     name: qnap # Required. Enter the secret name set in metadata.name.
   debugTraceFlags:

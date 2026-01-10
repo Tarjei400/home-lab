@@ -2,10 +2,13 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: qnap-samba # Required. Name your storageclass.
+
 provisioner: csi.trident.qnap.io
 parameters:
   selector: "performance=performance1" # Required. Corresponds to the labels in the virtual pool.
   trident.qnap.io/fileProtocol: "smb"
+
+  trident.netapp.io/volumeNameTemplate: "{{ .Namespace }}-{{ .PVC }}"
   csi.storage.k8s.io/node-stage-secret-name: "qnap" # Required. It must match the metadata.name in the Secret file.
   csi.storage.k8s.io/node-stage-secret-namespace: "storage" # Required. It must match the metadata.namespace in the Secret file.
 allowVolumeExpansion: true
