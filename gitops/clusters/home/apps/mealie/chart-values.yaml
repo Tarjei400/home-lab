@@ -62,7 +62,7 @@ env:
   BASE_URL: "https://mealie.lab.techyon.dev"
 
 persistence:
-  enabled: true
+  enabled: false
   existingClaim: qnap-mealie
   accessMode: ReadWriteOnce
   size: 5Gi
