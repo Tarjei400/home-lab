@@ -2,7 +2,7 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: qnap-samba # Required. Name your storageclass.
-  
+
 provisioner: csi.trident.qnap.io
 parameters:
   selector: "performance=performance1" # Required. Corresponds to the labels in the virtual pool.

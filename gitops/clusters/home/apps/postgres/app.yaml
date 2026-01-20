@@ -1,0 +1,5 @@
+repoURL: "https://cloudnative-pg.github.io/charts"
+chart: "cloudnative-pg"
+targetRevision: "0.27.0"
+releaseName: "pg-operator"
+namespace: "databases"

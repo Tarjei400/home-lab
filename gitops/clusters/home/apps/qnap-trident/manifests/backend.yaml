@@ -11,6 +11,9 @@ spec:
   dataLIF: 192.168.33.14
 #  networkInterfaces: ["Adapter1"] # Optional. Your adapter name or leave it empty.
 
+  #Examples for nameTemplate and labels :
+  #https://github.com/YvosOnTheHub/LabNetApp/blob/master/Kubernetes_v6/Trident_Scenarios/Scenario23/config_labelTemplate.yaml
+  #https://github.com/YvosOnTheHub/LabNetApp/blob/master/Kubernetes_v6/Trident_Scenarios/Scenario23/config_nameTemplate.yaml
   defaults:
     nameTemplate: "{{ .config.StoragePrefix }}_{{ .volume.Namespace }}_{{ .volume.RequestName }}"
     labels: { "Namespace": "{{.volume.Namespace}}", "PVC": "{{.volume.RequestName}}"}

@@ -1,0 +1,18 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres-ha
+spec:
+  instances: 3
+
+  storage:
+    size: 8Gi
+    storageClass: qnap-iscsi
+
+  postgresql:
+    parameters:
+      max_connections: "100"
+      shared_buffers: "128MB"
+
+  monitoring:
+    enablePodMonitor: true
