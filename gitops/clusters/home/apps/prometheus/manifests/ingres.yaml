@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prometheus
+  namespace: monitoring
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: cloudflare-ca
+    gethomepage.dev/description: Prometheus
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/group: Monitoring
+    gethomepage.dev/icon: prometheus.png
+    gethomepage.dev/name: Prometheus
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - prometheus.lab.techyon.dev
+      secretName: prometheus-tls
+  rules:
+    - host: prometheus.lab.techyon.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus-operated
+                port:
+                  number: 9090
