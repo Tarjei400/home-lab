@@ -1,0 +1,11 @@
+image:
+  repository: ghcr.io/t3chy0n/paperclip
+  tag: "latest"
+
+imagePullSecrets:
+  - name: ghcr-docker
+
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClass: qnap-iscsi

@@ -1,0 +1,10 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: paperclip
+  namespace: databases
+spec:
+  name: paperclip
+  owner: app
+  cluster:
+    name: postgres-ha
