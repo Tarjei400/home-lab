@@ -44,9 +44,13 @@ spec:
   bootstrap:
     initdb:
       postInitSQL:
-        - CREATE DATABASE paperclip OWNER paperclip;
-        - CREATE DATABASE necronia OWNER necronia;
-        - CREATE DATABASE techyon OWNER techyon;
+        - CREATE DATABASE paperclip;
+        - CREATE DATABASE necronia;
+        - CREATE DATABASE techyon;
+      postInitApplicationSQL:
+        - ALTER DATABASE paperclip OWNER TO paperclip;
+        - ALTER DATABASE necronia OWNER TO necronia;
+        - ALTER DATABASE techyon OWNER TO techyon;
         - GRANT ALL PRIVILEGES ON DATABASE paperclip TO paperclip;
         - GRANT ALL PRIVILEGES ON DATABASE necronia TO necronia;
         - GRANT ALL PRIVILEGES ON DATABASE techyon TO techyon;
