@@ -1,5 +1,0 @@
-repoURL: "https://charts.jenkins.io"
-chart: "jenkins"
-targetRevision: "5.8.116"
-releaseName: "jenkins"
-namespace: "jenkins"

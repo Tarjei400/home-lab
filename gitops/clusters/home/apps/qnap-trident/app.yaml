@@ -1,4 +1,4 @@
-repoURL: "https://charts.lab.techyon.dev"
+repoURL: "ghcr.io/t3chy0n/charts"
 chart: "qnap-trident"
 targetRevision: "0.1.0"
 releaseName: "qnap-trident"
