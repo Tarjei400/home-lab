@@ -64,9 +64,11 @@ ingress:
     cert-manager.io/cluster-issuer: cloudflare-ca
     # Google Workspace SSO gate — oauth2-proxy sits in front of the dashboard.
     # Homepage has no native auth, so without this every lab URL it links
-    # to would be publicly reachable.
+    # to would be publicly reachable. rd= must include https://$host because
+    # oauth2-proxy lives on a different subdomain; without it oauth2-proxy
+    # redirects back to its own success page after auth instead of here.
     nginx.ingress.kubernetes.io/auth-url: "https://oauth.lab.techyon.dev/oauth2/auth"
-    nginx.ingress.kubernetes.io/auth-signin: "https://oauth.lab.techyon.dev/oauth2/start?rd=$escaped_request_uri"
+    nginx.ingress.kubernetes.io/auth-signin: "https://oauth.lab.techyon.dev/oauth2/start?rd=https://$host$escaped_request_uri"
     # kubernetes.io/ingress.class: nginx
   # kubernetes.io/tls-acme: "true"
   hosts:

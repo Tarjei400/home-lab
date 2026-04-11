@@ -31,8 +31,12 @@ ingress:
     # Pi-hole has no native OIDC, so nginx authenticates every request against
     # oauth2-proxy first and only then forwards to the Pi-hole admin UI
     # (which still has its own local password as a second layer).
+    # rd= must be a full URL (https://$host$escaped_request_uri) because
+    # oauth2-proxy lives on a different subdomain than the protected service;
+    # without the scheme+host prefix it redirects back to oauth.lab.techyon.dev
+    # instead of the originally requested URL.
     nginx.ingress.kubernetes.io/auth-url: "https://oauth.lab.techyon.dev/oauth2/auth"
-    nginx.ingress.kubernetes.io/auth-signin: "https://oauth.lab.techyon.dev/oauth2/start?rd=$escaped_request_uri"
+    nginx.ingress.kubernetes.io/auth-signin: "https://oauth.lab.techyon.dev/oauth2/start?rd=https://$host$escaped_request_uri"
     gethomepage.dev/description: PIHole Administration Panel
     gethomepage.dev/enabled: "true"
     gethomepage.dev/group: Administration
