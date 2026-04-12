@@ -81,13 +81,13 @@ server:
         gethomepage.dev/group: Home
         gethomepage.dev/icon: immich.png
       hosts:
-        - host: immich.lab.techyon.dev
+        - host: photos.lab.techyon.dev
           paths:
             - path: /
               service:
                 identifier: main
       tls:
-        - hosts: [immich.lab.techyon.dev]
+        - hosts: [photos.lab.techyon.dev]
           secretName: immich-tls
 
 # --- Machine Learning ---
