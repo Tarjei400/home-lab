@@ -62,12 +62,33 @@ data:
         },
         {
           "type": "stat",
-          "title": "Powerline latency (far adapter)",
+          "title": "Powerline RTT (near adapter)",
           "id": 4,
-          "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+          "gridPos": {"h": 4, "w": 3, "x": 18, "y": 0},
+          "targets": [{"expr": "probe_icmp_duration_seconds{target=\"powerline-near\",phase=\"rtt\"}", "refId": "A"}],
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "value"},
+          "fieldConfig": {"defaults": {"unit": "s", "decimals": 3, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 0.02}, {"color": "red", "value": 0.05}]}}}
+        },
+        {
+          "type": "stat",
+          "title": "Powerline RTT (far adapter)",
+          "id": 10,
+          "gridPos": {"h": 4, "w": 3, "x": 21, "y": 0},
           "targets": [{"expr": "probe_icmp_duration_seconds{target=\"powerline-far\",phase=\"rtt\"}", "refId": "A"}],
           "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "value"},
-          "fieldConfig": {"defaults": {"unit": "s", "decimals": 3}}
+          "fieldConfig": {"defaults": {"unit": "s", "decimals": 3, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 0.02}, {"color": "red", "value": 0.05}]}}}
+        },
+        {
+          "type": "timeseries",
+          "title": "Powerline near vs far (delta = powerline cost)",
+          "id": 11,
+          "gridPos": {"h": 8, "w": 24, "x": 0, "y": 32},
+          "targets": [
+            {"expr": "probe_icmp_duration_seconds{target=\"powerline-near\",phase=\"rtt\"}", "legendFormat": "Near adapter RTT", "refId": "A"},
+            {"expr": "probe_icmp_duration_seconds{target=\"powerline-far\",phase=\"rtt\"}", "legendFormat": "Far adapter RTT", "refId": "B"},
+            {"expr": "probe_icmp_duration_seconds{target=\"powerline-far\",phase=\"rtt\"} - probe_icmp_duration_seconds{target=\"powerline-near\",phase=\"rtt\"}", "legendFormat": "Powerline-only cost (far − near)", "refId": "C"}
+          ],
+          "fieldConfig": {"defaults": {"unit": "s", "custom": {"lineWidth": 2, "fillOpacity": 5}}}
         },
         {
           "type": "table",
