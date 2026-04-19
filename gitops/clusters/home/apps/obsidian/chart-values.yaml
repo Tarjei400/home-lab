@@ -1,0 +1,89 @@
+# Obsidian (sytone/obsidian-remote) — KasmVNC web UI that runs the desktop
+# Obsidian app in a browser. Vault lives on an RWO PVC; plugins are installed
+# by an init container that reads .Values.plugins from this file.
+#
+# Obsidian has no native OIDC, so the ingress is gated by the shared
+# oauth2-proxy at oauth.lab.techyon.dev (same pattern as Pi-hole and Homepage).
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/sytone/obsidian-remote
+  tag: "latest"
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: qnap-iscsi
+  accessMode: ReadWriteOnce
+  mountPath: /vaults
+
+vault:
+  path: /vaults/default
+
+env:
+  PUID: "1000"
+  PGID: "1000"
+  TZ: "Europe/Warsaw"
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: cloudflare-ca
+
+    # KasmVNC keeps a long-lived WebSocket open; nginx's default 60s read
+    # timeout will sever the session mid-edit. 3600s matches typical oauth2
+    # cookie lifetime and is what other KasmVNC deployments use.
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    # Pasted images and attachments can be large.
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+
+    # Google Workspace SSO gate — Obsidian itself has no auth, so every
+    # request goes through oauth2-proxy first. rd= needs the full URL
+    # (https://$host…) because oauth2-proxy is on a different subdomain —
+    # without the scheme+host it redirects back to oauth.lab instead of here.
+    nginx.ingress.kubernetes.io/auth-url: "https://oauth.lab.techyon.dev/oauth2/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "https://oauth.lab.techyon.dev/oauth2/start?rd=https://$host$escaped_request_uri"
+
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: Obsidian
+    gethomepage.dev/description: Knowledge base / notes
+    gethomepage.dev/group: Home
+    gethomepage.dev/icon: obsidian.png
+
+  hosts:
+    - host: obsidian.lab.techyon.dev
+      paths:
+        - path: /
+          pathType: Prefix
+
+  tls:
+    - secretName: obsidian-tls
+      hosts:
+        - obsidian.lab.techyon.dev
+
+# Declarative community plugin seed list. The init container downloads these
+# from GitHub release assets on each pod start (idempotent — unchanged versions
+# are skipped). Adding or bumping an entry here is enough to roll them out on
+# the next ArgoCD sync.
+#
+# plugins:
+#   - id: dataview
+#     repo: blacksmithgu/obsidian-dataview
+#     version: 0.5.67
+plugins: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
