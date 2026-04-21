@@ -61,7 +61,7 @@ alloy:
         }
 
         output {
-          logs   = [otelcol.exporter.loki.default.input]
+          logs   = [loki.write.default.receiver]
           traces = [otelcol.exporter.otlp.tempo.input]
         }
       }
