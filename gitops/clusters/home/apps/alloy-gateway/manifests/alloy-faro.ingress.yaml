@@ -17,14 +17,7 @@ metadata:
     # Faro batches telemetry events client-side; a single POST can carry a
     # session's worth of logs/spans. 10m matches the receiver's max payload.
     nginx.ingress.kubernetes.io/proxy-body-size: "10m"
-    # CORS — Alloy's faro.receiver sets cors_allowed_origins but the nginx
-    # ingress intercepts the OPTIONS preflight before it reaches the pod.
-    # Let nginx handle CORS at the edge so browser SDK requests from
-    # localhost and *.techyon.dev origins succeed.
-    nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "http://localhost:3000, http://localhost:3001, https://tokyo-admin.lab.techyon.dev, https://*.techyon.dev"
-    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, OPTIONS"
-    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type, x-api-key"
+
     # Defense in depth — Alloy's faro.receiver has rate_limiting, but nginx
     # caps it at the edge too so malicious clients can't exhaust the pod.
     nginx.ingress.kubernetes.io/limit-rps: "50"
