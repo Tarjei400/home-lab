@@ -44,7 +44,8 @@ alloy:
           cors_allowed_origins     = [
             "http://localhost:3000",
             "http://localhost:3001",
-            "https://tokyo-admin.lab.techyon.dev",
+            "http://192.168.*",
+            "http://*.svc.cluster.local",
             "https://*.techyon.dev",
           ]
           api_key                  = sys.env("FARO_API_KEY")
