@@ -12,9 +12,6 @@ grafana:
   # intentionally omit literal client_id / client_secret in grafana.ini below.
   envFromSecret: grafana-google-oidc
 
-  plugins:
-    - grafana-frontend-observability-app
-
   grafana.ini:
     server:
       root_url: https://grafana.lab.techyon.dev
