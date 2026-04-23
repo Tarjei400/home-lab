@@ -141,7 +141,7 @@ alloy:
       port: 12347
       targetPort: 12347
       protocol: TCP
-    - name: pyroscope-ingest
+    - name: pyro-ingest
       port: 12348
       targetPort: 12348
       protocol: TCP
