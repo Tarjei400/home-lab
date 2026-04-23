@@ -1,12 +1,14 @@
-# grafana/alloy chart — Deployment role: receives OTLP logs/traces from apps
-# outside the cluster (LAN) and Grafana Faro browser telemetry from public
-# frontends, then forwards both streams into in-cluster Loki and Tempo.
+# grafana/alloy chart — Deployment role: receives OTLP logs/traces/metrics from
+# apps outside the cluster (LAN) and Grafana Faro browser telemetry from public
+# frontends. Also receives Pyroscope profiles on :12348 from external apps.
 #
 # OTLP endpoints:
 #   Ingress  otel.lab.techyon.dev  → :4318 (HTTP)
 #   Cluster  alloy-gateway:4317    (gRPC, in-cluster only)
 # Faro endpoint:
 #   Ingress  faro.lab.techyon.dev/collect → :12347 (HTTP, x-api-key header gate)
+# Pyroscope ingest (no-auth, machine push):
+#   Ingress  pyroscope-ingest.lab.techyon.dev → :12348 (HTTP)
 #
 # The service this chart creates is named after the release (alloy-gateway).
 
@@ -17,6 +19,7 @@ controller:
   replicas: 1
 
 alloy:
+  stabilityLevel: public-preview
   configMap:
     content: |
       otelcol.receiver.otlp "default" {
@@ -27,8 +30,9 @@ alloy:
           endpoint = "0.0.0.0:4318"
         }
         output {
-          traces = [otelcol.exporter.otlp.tempo.input]
-          logs   = [otelcol.exporter.loki.default.input]
+          traces  = [otelcol.exporter.otlp.tempo.input]
+          logs    = [otelcol.exporter.loki.default.input]
+          metrics = [otelcol.exporter.prometheus.cluster.input]
         }
       }
 
@@ -87,6 +91,33 @@ alloy:
         }
       }
 
+      // OTLP metrics → Prometheus remote_write (requires enableRemoteWriteReceiver on Prometheus CRD)
+      otelcol.exporter.prometheus "cluster" {
+        forward_to = [prometheus.remote_write.cluster.receiver]
+      }
+
+      prometheus.remote_write "cluster" {
+        endpoint {
+          url = "http://prometheus-operated.monitoring.svc.cluster.local:9090/api/v1/write"
+        }
+      }
+
+      // Pyroscope profile ingest from external apps (no auth — gated by ingress hostname only).
+      // Local Alloy pushes to https://pyroscope-ingest.lab.techyon.dev which routes here.
+      pyroscope.receive_http "default" {
+        http {
+          listen_address = "0.0.0.0"
+          listen_port    = 12348
+        }
+        forward_to = [pyroscope.write.cluster.receiver]
+      }
+
+      pyroscope.write "cluster" {
+        endpoint {
+          url = "http://pyroscope.monitoring.svc.cluster.local:4040"
+        }
+      }
+
   # FARO_API_KEY is read at Alloy startup and referenced via sys.env() in the
   # faro.receiver above. The Secret is populated by External Secrets from the
   # 1Password "FaroApiKey" item (see manifests/faro-api-key.external-secret.yaml).
@@ -109,6 +140,10 @@ alloy:
     - name: faro
       port: 12347
       targetPort: 12347
+      protocol: TCP
+    - name: pyroscope-ingest
+      port: 12348
+      targetPort: 12348
       protocol: TCP
 
 service:
