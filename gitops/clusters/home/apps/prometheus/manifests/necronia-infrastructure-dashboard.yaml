@@ -1,0 +1,404 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: necronia-infrastructure-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  necronia-infrastructure.json: |
+    {
+      "uid": "necronia-infrastructure",
+      "title": "Necronia — Infrastructure",
+      "description": "Orleans cluster, .NET runtime, network gateway (DDoS signals), PostgreSQL.",
+      "tags": ["necronia", "infra"],
+      "timezone": "utc",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "10s",
+      "time": { "from": "now-1h", "to": "now" },
+      "liveNow": true,
+      "templating": {
+        "list": [
+          {
+            "name": "datasource",
+            "type": "datasource",
+            "query": "prometheus",
+            "current": { "text": "default", "value": "default" },
+            "hide": 0,
+            "label": "Prometheus"
+          },
+          {
+            "name": "interval",
+            "type": "interval",
+            "query": "1m,5m,10m,30m,1h",
+            "current": { "text": "5m", "value": "5m" },
+            "hide": 0,
+            "label": "Rate interval"
+          }
+        ]
+      },
+      "panels": [
+    
+        { "id": 100, "title": "Orleans", "type": "row", "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 1, "title": "Server Up", "type": "stat",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 1, "w": 4, "h": 3 },
+          "targets": [{ "expr": "up{job=\"necronia-server\"}", "legendFormat": "Up" }],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "mappings": [{ "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }],
+              "thresholds": { "steps": [
+                { "value": null, "color": "red" },
+                { "value": 1, "color": "green" }
+              ] }
+            }
+          },
+          "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" }
+        },
+    
+        {
+          "id": 2, "title": "Dispatcher Activation Queue Depth", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 4, "y": 1, "w": 10, "h": 5 },
+          "targets": [{ "expr": "orleans_messaging_processing_activation_data", "legendFormat": "Activation queue" }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": { "thresholdsStyle": { "mode": "line" } },
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 500, "color": "yellow" },
+                { "value": 1000, "color": "red" }
+              ] }
+            }
+          }
+        },
+    
+        {
+          "id": 3, "title": "Dispatcher Throughput (received / processed)", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 14, "y": 1, "w": 10, "h": 5 },
+          "targets": [
+            { "expr": "rate(orleans_messaging_processing_dispatcher_received_total[$interval])", "legendFormat": "Received/s" },
+            { "expr": "rate(orleans_messaging_processing_dispatcher_processed_total[$interval])", "legendFormat": "Processed/s" },
+            { "expr": "rate(orleans_messaging_processing_dispatcher_forwarded_total[$interval])", "legendFormat": "Forwarded/s" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        {
+          "id": 4, "title": "Dropped / Failed / Rejected Messages", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 6, "w": 8, "h": 5 },
+          "targets": [
+            { "expr": "rate(orleans_messaging_sent_dropped_total[$interval])", "legendFormat": "Dropped/s" },
+            { "expr": "rate(orleans_messaging_sent_failed_total[$interval])", "legendFormat": "Failed/s" },
+            { "expr": "rate(orleans_messaging_rejected_total[$interval])", "legendFormat": "Rejected/s" },
+            { "expr": "rate(orleans_messaging_expired_total[$interval])", "legendFormat": "Expired/s" }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 0.01, "color": "red" }
+              ] }
+            }
+          }
+        },
+    
+        {
+          "id": 5, "title": "Gateway Connected Clients", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 8, "y": 6, "w": 8, "h": 5 },
+          "targets": [{ "expr": "orleans_gateway_connected_clients", "legendFormat": "Connected clients" }],
+          "fieldConfig": { "defaults": { "unit": "short" } }
+        },
+    
+        {
+          "id": 6, "title": "Active Grain Instances (by type)", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 16, "y": 6, "w": 8, "h": 5 },
+          "targets": [{ "expr": "orleans_grains", "legendFormat": "{{grain_type}}" }],
+          "fieldConfig": { "defaults": { "unit": "short" } }
+        },
+    
+        { "id": 200, "title": ".NET Runtime", "type": "row", "gridPos": { "x": 0, "y": 11, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 10, "title": "GC Heap Size by Generation", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 12, "w": 8, "h": 5 },
+          "targets": [
+            { "expr": "dotnet_gc_heap_size_bytes{generation='gen0'}", "legendFormat": "Gen 0" },
+            { "expr": "dotnet_gc_heap_size_bytes{generation='gen1'}", "legendFormat": "Gen 1" },
+            { "expr": "dotnet_gc_heap_size_bytes{generation='gen2'}", "legendFormat": "Gen 2" },
+            { "expr": "dotnet_gc_heap_size_bytes{generation='loh'}", "legendFormat": "LOH" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "bytes" } }
+        },
+    
+        {
+          "id": 11, "title": "GC Collections / sec (by generation)", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 8, "y": 12, "w": 8, "h": 5 },
+          "targets": [
+            { "expr": "rate(dotnet_gc_collections_total{generation='gen0'}[$interval])", "legendFormat": "Gen 0/s" },
+            { "expr": "rate(dotnet_gc_collections_total{generation='gen1'}[$interval])", "legendFormat": "Gen 1/s" },
+            { "expr": "rate(dotnet_gc_collections_total{generation='gen2'}[$interval])", "legendFormat": "Gen 2/s" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        {
+          "id": 12, "title": "GC Pause Time Ratio", "type": "gauge",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 16, "y": 12, "w": 4, "h": 5 },
+          "targets": [{
+            "expr": "dotnet_gc_pause_time_ratio * 100",
+            "legendFormat": "GC pause %"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent", "min": 0, "max": 20,
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 3, "color": "yellow" },
+                { "value": 5, "color": "red" }
+              ] }
+            }
+          },
+          "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+        },
+    
+        {
+          "id": 13, "title": "ThreadPool Queue Length", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 20, "y": 12, "w": 4, "h": 5 },
+          "targets": [{ "expr": "dotnet_thread_pool_queue_length", "legendFormat": "Queue" }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 200, "color": "yellow" },
+                { "value": 500, "color": "red" }
+              ] }
+            }
+          }
+        },
+    
+        {
+          "id": 14, "title": "Process Memory (Working Set)", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 17, "w": 8, "h": 5 },
+          "targets": [
+            { "expr": "dotnet_process_memory_working_set_bytes", "legendFormat": "Working set" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "bytes" } }
+        },
+    
+        {
+          "id": 15, "title": "CPU Usage", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 8, "y": 17, "w": 8, "h": 5 },
+          "targets": [{
+            "expr": "rate(dotnet_process_cpu_time_seconds_total[$interval]) * 100",
+            "legendFormat": "CPU %"
+          }],
+          "fieldConfig": { "defaults": { "unit": "percent" } }
+        },
+    
+        {
+          "id": 16, "title": "Heap Allocations / sec", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 16, "y": 17, "w": 8, "h": 5 },
+          "targets": [{
+            "expr": "rate(dotnet_gc_heap_total_allocated_bytes_total[$interval])",
+            "legendFormat": "Alloc bytes/s"
+          }],
+          "fieldConfig": { "defaults": { "unit": "Bps" } }
+        },
+    
+        { "id": 300, "title": "Network & Gateway", "type": "row", "gridPos": { "x": 0, "y": 22, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 20, "title": "Player Connections / sec", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 23, "w": 8, "h": 5 },
+          "targets": [
+            { "expr": "rate(necronia_player_connections_total[$interval])", "legendFormat": "Connections/s" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        {
+          "id": 21, "title": "Invalid & Dropped Packets / sec (DDoS signal)", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 8, "y": 23, "w": 8, "h": 5 },
+          "targets": [
+            {
+              "expr": "rate(necronia_gateway_packets_invalid_total[$interval])",
+              "legendFormat": "Invalid ({{error.reason}})"
+            },
+            {
+              "expr": "rate(necronia_gateway_packets_dropped_total[$interval])",
+              "legendFormat": "Dropped ({{reason}})"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 10, "color": "yellow" },
+                { "value": 50, "color": "red" }
+              ] }
+            }
+          }
+        },
+    
+        {
+          "id": 22, "title": "Gateway Pipeline Backpressure / sec", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 16, "y": 23, "w": 8, "h": 5 },
+          "targets": [{
+            "expr": "rate(necronia_gateway_pipeline_backpressure_total[$interval])",
+            "legendFormat": "Backpressure/s"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 1, "color": "yellow" },
+                { "value": 10, "color": "red" }
+              ] }
+            }
+          }
+        },
+    
+        { "id": 400, "title": "PostgreSQL", "type": "row", "gridPos": { "x": 0, "y": 28, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 30, "title": "Active Connections", "type": "stat",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 29, "w": 4, "h": 4 },
+          "targets": [{ "expr": "pg_stat_activity_count", "legendFormat": "Connections" }],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 30, "color": "yellow" },
+                { "value": 40, "color": "red" }
+              ] }
+            }
+          },
+          "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" }
+        },
+    
+        {
+          "id": 31, "title": "Transaction Rate", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 4, "y": 29, "w": 10, "h": 5 },
+          "targets": [
+            { "expr": "rate(pg_stat_database_xact_commit[$interval])", "legendFormat": "Commits/s" },
+            { "expr": "rate(pg_stat_database_xact_rollback[$interval])", "legendFormat": "Rollbacks/s" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        {
+          "id": 32, "title": "Buffer Cache Hit Ratio", "type": "gauge",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 14, "y": 29, "w": 5, "h": 5 },
+          "targets": [{
+            "expr": "100 * rate(pg_stat_database_blks_hit[$interval]) / (rate(pg_stat_database_blks_hit[$interval]) + rate(pg_stat_database_blks_read[$interval]) + 0.001)",
+            "legendFormat": "Cache hit %"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent", "min": 0, "max": 100,
+              "thresholds": { "steps": [
+                { "value": null, "color": "red" },
+                { "value": 90, "color": "yellow" },
+                { "value": 98, "color": "green" }
+              ] }
+            }
+          },
+          "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+        },
+    
+        {
+          "id": 33, "title": "Deadlocks & Conflicts / sec", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 19, "y": 29, "w": 5, "h": 5 },
+          "targets": [
+            { "expr": "rate(pg_stat_database_deadlocks_total[$interval])", "legendFormat": "Deadlocks/s" },
+            { "expr": "rate(pg_stat_database_conflicts_total[$interval])", "legendFormat": "Conflicts/s" }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 0.001, "color": "red" }
+              ] }
+            }
+          }
+        },
+    
+        {
+          "id": 34, "title": "Row Operations / sec", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 34, "w": 8, "h": 5 },
+          "targets": [
+            { "expr": "rate(pg_stat_database_tup_fetched[$interval])", "legendFormat": "Fetched/s" },
+            { "expr": "rate(pg_stat_database_tup_inserted[$interval])", "legendFormat": "Inserted/s" },
+            { "expr": "rate(pg_stat_database_tup_updated[$interval])", "legendFormat": "Updated/s" },
+            { "expr": "rate(pg_stat_database_tup_deleted[$interval])", "legendFormat": "Deleted/s" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        {
+          "id": 35, "title": "Locks Waiting", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 8, "y": 34, "w": 8, "h": 5 },
+          "targets": [{ "expr": "pg_locks_count{granted='false'}", "legendFormat": "Waiting ({{mode}})" }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 1, "color": "yellow" },
+                { "value": 5, "color": "red" }
+              ] }
+            }
+          }
+        },
+    
+        {
+          "id": 36, "title": "Autovacuum Activity & Database Size", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 16, "y": 34, "w": 8, "h": 5 },
+          "targets": [
+            { "expr": "pg_database_size_bytes", "legendFormat": "DB size" },
+            { "expr": "increase(pg_stat_user_tables_autovacuum_count[$interval])", "legendFormat": "Autovacuums" }
+          ],
+          "fieldConfig": {
+            "defaults": { "unit": "bytes" },
+            "overrides": [{
+              "matcher": { "id": "byName", "options": "Autovacuums" },
+              "properties": [{ "id": "unit", "value": "short" }]
+            }]
+          }
+        }
+    
+      ]
+    }

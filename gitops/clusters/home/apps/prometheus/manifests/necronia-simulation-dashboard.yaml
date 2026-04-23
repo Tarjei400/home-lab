@@ -1,0 +1,282 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: necronia-simulation-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  necronia-simulation.json: |
+    {
+      "uid": "necronia-simulation",
+      "title": "Necronia — Simulation & AI",
+      "description": "ECS tick health, per-system breakdown, AI pathfinding, world state, scripting engine.",
+      "tags": ["necronia", "simulation", "ecs"],
+      "timezone": "utc",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "10s",
+      "time": { "from": "now-1h", "to": "now" },
+      "liveNow": true,
+      "templating": {
+        "list": [
+          {
+            "name": "datasource",
+            "type": "datasource",
+            "query": "prometheus",
+            "current": { "text": "default", "value": "default" },
+            "hide": 0,
+            "label": "Prometheus"
+          },
+          {
+            "name": "interval",
+            "type": "interval",
+            "query": "1m,5m,10m,30m,1h",
+            "current": { "text": "5m", "value": "5m" },
+            "hide": 0,
+            "label": "Rate interval"
+          }
+        ]
+      },
+      "panels": [
+    
+        { "id": 100, "title": "ECS Tick Health", "type": "row", "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 1, "title": "Combat Tick Duration", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 1, "w": 12, "h": 6 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.99, rate(necronia_grains_combat_tick_duration_milliseconds_bucket[$interval]))",
+              "legendFormat": "p99"
+            },
+            {
+              "expr": "histogram_quantile(0.50, rate(necronia_grains_combat_tick_duration_milliseconds_bucket[$interval]))",
+              "legendFormat": "p50"
+            },
+            {
+              "expr": "histogram_quantile(1.00, rate(necronia_grains_combat_tick_duration_milliseconds_bucket[$interval]))",
+              "legendFormat": "max"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "custom": { "thresholdsStyle": { "mode": "line+area" } },
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 80, "color": "yellow" },
+                { "value": 100, "color": "red" }
+              ] }
+            }
+          }
+        },
+    
+        {
+          "id": 2, "title": "Tick Overruns & Post-Tick Queue", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 12, "y": 1, "w": 12, "h": 6 },
+          "targets": [
+            {
+              "expr": "rate(necronia_grains_ecs_tick_overruns_total[$interval]) * 60",
+              "legendFormat": "Overruns/min"
+            },
+            {
+              "expr": "necronia_grains_ecs_posttick_queue_depth",
+              "legendFormat": "Post-tick queue"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": { "unit": "short" },
+            "overrides": [{
+              "matcher": { "id": "byName", "options": "Overruns/min" },
+              "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+            }]
+          }
+        },
+    
+        { "id": 200, "title": "Per-System ECS Breakdown", "type": "row", "gridPos": { "x": 0, "y": 7, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 10, "title": "ECS System Duration p99 (ms)", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 8, "w": 12, "h": 6 },
+          "targets": [{
+            "expr": "histogram_quantile(0.99, sum by (system, le) (rate(necronia_grains_ecs_system_duration_milliseconds_bucket[$interval])))",
+            "legendFormat": "{{system}} p99"
+          }],
+          "fieldConfig": { "defaults": { "unit": "ms" } }
+        },
+    
+        {
+          "id": 11, "title": "ECS System Duration p50 (ms)", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 12, "y": 8, "w": 12, "h": 6 },
+          "targets": [{
+            "expr": "histogram_quantile(0.50, sum by (system, le) (rate(necronia_grains_ecs_system_duration_milliseconds_bucket[$interval])))",
+            "legendFormat": "{{system}} p50"
+          }],
+          "fieldConfig": { "defaults": { "unit": "ms" } }
+        },
+    
+        { "id": 300, "title": "AI & Spawning", "type": "row", "gridPos": { "x": 0, "y": 14, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 20, "title": "Pathfinding Duration", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 15, "w": 8, "h": 5 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.99, rate(necronia_grains_monster_pathfind_duration_milliseconds_bucket[$interval]))",
+              "legendFormat": "Pathfind p99"
+            },
+            {
+              "expr": "histogram_quantile(0.50, rate(necronia_grains_monster_pathfind_duration_milliseconds_bucket[$interval]))",
+              "legendFormat": "Pathfind p50"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "ms" } }
+        },
+    
+        {
+          "id": 21, "title": "Pathfinding Failures / sec", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 8, "y": 15, "w": 8, "h": 5 },
+          "targets": [{
+            "expr": "rate(necronia_grains_pathfind_failures_total[$interval])",
+            "legendFormat": "Failures/s"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 0.1, "color": "yellow" },
+                { "value": 1, "color": "red" }
+              ] }
+            }
+          }
+        },
+    
+        {
+          "id": 22, "title": "Monsters Processed & Spawned / sec", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 16, "y": 15, "w": 8, "h": 5 },
+          "targets": [
+            { "expr": "rate(necronia_grains_monsters_processed_total[$interval])", "legendFormat": "Processed/s" },
+            { "expr": "rate(necronia_grains_monsters_spawned_total[$interval])", "legendFormat": "Spawned/s" },
+            { "expr": "rate(necronia_grains_npcs_processed_total[$interval])", "legendFormat": "NPCs/s" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        { "id": 400, "title": "World State", "type": "row", "gridPos": { "x": 0, "y": 20, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 30, "title": "Ground Items in Zone", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 21, "w": 8, "h": 5 },
+          "targets": [{
+            "expr": "histogram_quantile(0.99, rate(necronia_grains_ground_items_bucket[$interval]))",
+            "legendFormat": "Ground items p99"
+          }],
+          "fieldConfig": { "defaults": { "unit": "short" } }
+        },
+    
+        {
+          "id": 31, "title": "Active Conditions in Zone", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 8, "y": 21, "w": 8, "h": 5 },
+          "targets": [{
+            "expr": "histogram_quantile(0.99, rate(necronia_grains_conditions_active_bucket[$interval]))",
+            "legendFormat": "Conditions p99"
+          }],
+          "fieldConfig": { "defaults": { "unit": "short" } }
+        },
+    
+        {
+          "id": 32, "title": "Creature Move Events / sec", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 16, "y": 21, "w": 8, "h": 5 },
+          "targets": [{
+            "expr": "rate(necronia_grains_move_events_total[$interval])",
+            "legendFormat": "Move events/s"
+          }],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        { "id": 500, "title": "Scripting Engine", "type": "row", "gridPos": { "x": 0, "y": 26, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 40, "title": "Script Invocations / sec", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 27, "w": 6, "h": 5 },
+          "targets": [{
+            "expr": "rate(necronia_scripting_invocations_total[$interval])",
+            "legendFormat": "{{handler.type}}"
+          }],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        {
+          "id": 41, "title": "Script Error Rate %", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 6, "y": 27, "w": 6, "h": 5 },
+          "targets": [{
+            "expr": "100 * rate(necronia_scripting_errors_total[$interval]) / (rate(necronia_scripting_invocations_total[$interval]) + 0.001)",
+            "legendFormat": "Error %"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 2, "color": "yellow" },
+                { "value": 5, "color": "red" }
+              ] }
+            }
+          }
+        },
+    
+        {
+          "id": 42, "title": "Script Execution Duration p99 (by handler type)", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 12, "y": 27, "w": 6, "h": 5 },
+          "targets": [{
+            "expr": "histogram_quantile(0.99, sum by (handler_type, le) (rate(necronia_scripting_duration_milliseconds_bucket[$interval])))",
+            "legendFormat": "{{handler_type}} p99"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 50, "color": "yellow" },
+                { "value": 100, "color": "red" }
+              ] }
+            }
+          }
+        },
+    
+        {
+          "id": 43, "title": "Script Timeouts (>50ms) / sec", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 18, "y": 27, "w": 6, "h": 5 },
+          "targets": [{
+            "expr": "rate(necronia_scripting_timeouts_total[$interval])",
+            "legendFormat": "Timeouts/s"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 0.01, "color": "red" }
+              ] }
+            }
+          }
+        }
+    
+      ]
+    }

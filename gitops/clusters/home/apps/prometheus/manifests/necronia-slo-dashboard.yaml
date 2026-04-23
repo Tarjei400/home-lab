@@ -1,0 +1,313 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: necronia-slo-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  necronia-slo.json: |
+    {
+      "uid": "necronia-slo",
+      "title": "Necronia — Game Health (SLO)",
+      "description": "TV/NOC view: Is the game healthy? SLO signals, RED metrics, saturation.",
+      "tags": ["necronia", "slo", "overview"],
+      "timezone": "utc",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "10s",
+      "time": { "from": "now-30m", "to": "now" },
+      "liveNow": true,
+      "templating": {
+        "list": [
+          {
+            "name": "datasource",
+            "type": "datasource",
+            "query": "prometheus",
+            "current": { "text": "default", "value": "default" },
+            "hide": 0,
+            "label": "Prometheus"
+          },
+          {
+            "name": "interval",
+            "type": "interval",
+            "query": "1m,5m,10m",
+            "current": { "text": "5m", "value": "5m" },
+            "hide": 0,
+            "label": "Rate interval"
+          }
+        ]
+      },
+      "panels": [
+    
+        { "id": 100, "title": "Status", "type": "row", "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 1, "title": "Players Online", "type": "stat",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 1, "w": 4, "h": 4 },
+          "targets": [{ "expr": "necronia_grains_players_online", "legendFormat": "Online" }],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": { "steps": [
+                { "value": null, "color": "blue" },
+                { "value": 1, "color": "green" },
+                { "value": 200, "color": "yellow" }
+              ] }
+            }
+          },
+          "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "graphMode": "area", "colorMode": "background" }
+        },
+    
+        {
+          "id": 2, "title": "Server Up", "type": "stat",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 4, "y": 1, "w": 4, "h": 4 },
+          "targets": [{ "expr": "up{job=\"necronia-server\"}", "legendFormat": "Up" }],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "mappings": [{ "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }],
+              "thresholds": { "steps": [
+                { "value": null, "color": "red" },
+                { "value": 1, "color": "green" }
+              ] }
+            }
+          },
+          "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" }
+        },
+    
+        {
+          "id": 3, "title": "Login Success Rate", "type": "gauge",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 8, "y": 1, "w": 4, "h": 4 },
+          "targets": [{
+            "expr": "100 * (1 - rate(necronia_login_failures_total[$interval]) / (rate(necronia_login_attempts_total[$interval]) + 0.001))",
+            "legendFormat": "Success %"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent", "min": 0, "max": 100,
+              "thresholds": { "steps": [
+                { "value": null, "color": "red" },
+                { "value": 90, "color": "yellow" },
+                { "value": 98, "color": "green" }
+              ] }
+            }
+          },
+          "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+        },
+    
+        {
+          "id": 4, "title": "Script Error Rate", "type": "gauge",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 12, "y": 1, "w": 4, "h": 4 },
+          "targets": [{
+            "expr": "100 * rate(necronia_scripting_errors_total[$interval]) / (rate(necronia_scripting_invocations_total[$interval]) + 0.001)",
+            "legendFormat": "Error %"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent", "min": 0, "max": 10,
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 2, "color": "yellow" },
+                { "value": 5, "color": "red" }
+              ] }
+            }
+          },
+          "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+        },
+    
+        {
+          "id": 5, "title": "Tick Overruns / min", "type": "stat",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 16, "y": 1, "w": 4, "h": 4 },
+          "targets": [{
+            "expr": "rate(necronia_grains_ecs_tick_overruns_total[$interval]) * 60",
+            "legendFormat": "Overruns/min"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 1, "color": "yellow" },
+                { "value": 12, "color": "red" }
+              ] }
+            }
+          },
+          "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" }
+        },
+    
+        {
+          "id": 6, "title": "DB Deadlocks / sec", "type": "stat",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 20, "y": 1, "w": 4, "h": 4 },
+          "targets": [{
+            "expr": "rate(pg_stat_database_deadlocks_total[$interval])",
+            "legendFormat": "Deadlocks/s"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 0.001, "color": "red" }
+              ] }
+            }
+          },
+          "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" }
+        },
+    
+        { "id": 200, "title": "SLO — Tick Performance", "type": "row", "gridPos": { "x": 0, "y": 5, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 10, "title": "Combat Tick Duration p99 vs 80ms budget", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 6, "w": 12, "h": 6 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.99, rate(necronia_grains_combat_tick_duration_milliseconds_bucket[$interval]))",
+              "legendFormat": "p99"
+            },
+            {
+              "expr": "histogram_quantile(0.50, rate(necronia_grains_combat_tick_duration_milliseconds_bucket[$interval]))",
+              "legendFormat": "p50"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "custom": { "thresholdsStyle": { "mode": "line+area" } },
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 80, "color": "yellow" },
+                { "value": 100, "color": "red" }
+              ] }
+            }
+          }
+        },
+    
+        {
+          "id": 11, "title": "ECS Tick Overruns", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 12, "y": 6, "w": 12, "h": 6 },
+          "targets": [{
+            "expr": "rate(necronia_grains_ecs_tick_overruns_total[$interval]) * 60",
+            "legendFormat": "Overruns/min"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 1, "color": "yellow" },
+                { "value": 12, "color": "red" }
+              ] }
+            }
+          }
+        },
+    
+        { "id": 300, "title": "RED — Rate / Errors / Duration", "type": "row", "gridPos": { "x": 0, "y": 12, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 20, "title": "Actions / sec (Moves + Spells + Logins)", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 13, "w": 8, "h": 6 },
+          "targets": [
+            { "expr": "rate(necronia_grains_moves_attempted_total[$interval])", "legendFormat": "Moves" },
+            { "expr": "rate(necronia_grains_spells_cast_total[$interval])", "legendFormat": "Spells" },
+            { "expr": "rate(necronia_login_attempts_total[$interval])", "legendFormat": "Logins" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        {
+          "id": 21, "title": "Error Rate", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 8, "y": 13, "w": 8, "h": 6 },
+          "targets": [
+            { "expr": "rate(necronia_scripting_errors_total[$interval])", "legendFormat": "Script errors" },
+            { "expr": "rate(necronia_login_failures_total[$interval])", "legendFormat": "Login failures" },
+            { "expr": "rate(necronia_gateway_packets_invalid_total[$interval])", "legendFormat": "Invalid packets" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        {
+          "id": 22, "title": "Scripting Duration p99", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 16, "y": 13, "w": 8, "h": 6 },
+          "targets": [{
+            "expr": "histogram_quantile(0.99, rate(necronia_scripting_duration_milliseconds_bucket[$interval]))",
+            "legendFormat": "Script p99"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 50, "color": "yellow" },
+                { "value": 100, "color": "red" }
+              ] }
+            }
+          }
+        },
+    
+        { "id": 400, "title": "Saturation", "type": "row", "gridPos": { "x": 0, "y": 19, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 30, "title": "Orleans Dispatcher Activation Queue", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 20, "w": 8, "h": 5 },
+          "targets": [{ "expr": "orleans_messaging_processing_activation_data", "legendFormat": "Activation queue" }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 500, "color": "yellow" },
+                { "value": 1000, "color": "red" }
+              ] }
+            }
+          }
+        },
+    
+        {
+          "id": 31, "title": ".NET ThreadPool Queue Length", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 8, "y": 20, "w": 8, "h": 5 },
+          "targets": [{ "expr": "dotnet_thread_pool_queue_length", "legendFormat": "Queue length" }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 200, "color": "yellow" },
+                { "value": 500, "color": "red" }
+              ] }
+            }
+          }
+        },
+    
+        {
+          "id": 32, "title": "Post-Tick Queue Depth", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 16, "y": 20, "w": 8, "h": 5 },
+          "targets": [{ "expr": "necronia_grains_ecs_posttick_queue_depth", "legendFormat": "Post-tick depth" }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": { "steps": [
+                { "value": null, "color": "green" },
+                { "value": 20, "color": "yellow" },
+                { "value": 50, "color": "red" }
+              ] }
+            }
+          }
+        }
+    
+      ]
+    }

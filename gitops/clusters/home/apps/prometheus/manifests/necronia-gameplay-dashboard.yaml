@@ -1,0 +1,224 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: necronia-gameplay-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  necronia-gameplay.json: |
+    {
+      "uid": "necronia-gameplay",
+      "title": "Necronia — Player & Gameplay",
+      "description": "Player sessions, combat, movement, economy, quests.",
+      "tags": ["necronia", "gameplay"],
+      "timezone": "utc",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "10s",
+      "time": { "from": "now-1h", "to": "now" },
+      "liveNow": true,
+      "templating": {
+        "list": [
+          {
+            "name": "datasource",
+            "type": "datasource",
+            "query": "prometheus",
+            "current": { "text": "default", "value": "default" },
+            "hide": 0,
+            "label": "Prometheus"
+          },
+          {
+            "name": "interval",
+            "type": "interval",
+            "query": "1m,5m,10m,30m,1h",
+            "current": { "text": "5m", "value": "5m" },
+            "hide": 0,
+            "label": "Rate interval"
+          }
+        ]
+      },
+      "panels": [
+    
+        { "id": 100, "title": "Sessions", "type": "row", "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 1, "title": "Players Online", "type": "stat",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 1, "w": 4, "h": 4 },
+          "targets": [{ "expr": "necronia_grains_players_online", "legendFormat": "Online" }],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": { "steps": [
+                { "value": null, "color": "blue" },
+                { "value": 1, "color": "green" },
+                { "value": 200, "color": "yellow" }
+              ] }
+            }
+          },
+          "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area" }
+        },
+    
+        {
+          "id": 2, "title": "Logins / sec", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 4, "y": 1, "w": 10, "h": 4 },
+          "targets": [
+            { "expr": "rate(necronia_login_attempts_total[$interval])", "legendFormat": "Attempts" },
+            { "expr": "rate(necronia_login_failures_total[$interval])", "legendFormat": "Failures" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        {
+          "id": 3, "title": "Zone Joins / sec", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 14, "y": 1, "w": 10, "h": 4 },
+          "targets": [
+            { "expr": "rate(necronia_grains_zone_joins_total[$interval])", "legendFormat": "Zone joins" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        { "id": 200, "title": "Combat", "type": "row", "gridPos": { "x": 0, "y": 5, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 10, "title": "Spells Cast / sec", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 6, "w": 8, "h": 5 },
+          "targets": [
+            { "expr": "rate(necronia_grains_spells_cast_total[$interval])", "legendFormat": "{{spell.type}}" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        {
+          "id": 11, "title": "Combat Damage Distribution", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 8, "y": 6, "w": 8, "h": 5 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.99, rate(necronia_grains_combat_damage_hp_bucket[$interval]))",
+              "legendFormat": "Damage p99"
+            },
+            {
+              "expr": "histogram_quantile(0.50, rate(necronia_grains_combat_damage_hp_bucket[$interval]))",
+              "legendFormat": "Damage p50"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short", "custom": { "axisLabel": "HP" } } }
+        },
+    
+        {
+          "id": 12, "title": "Player Deaths / sec (by killer type)", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 16, "y": 6, "w": 8, "h": 5 },
+          "targets": [
+            { "expr": "rate(necronia_grains_player_deaths_total[$interval])", "legendFormat": "{{killer.type}}" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        {
+          "id": 13, "title": "Combat Hit / Miss Rate", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 11, "w": 8, "h": 5 },
+          "targets": [
+            {
+              "expr": "rate(necronia_grains_spells_cast_total[$interval]) - rate(necronia_grains_combat_misses_total[$interval])",
+              "legendFormat": "Hits (spells - misses)"
+            },
+            { "expr": "rate(necronia_grains_combat_misses_total[$interval])", "legendFormat": "Misses" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        {
+          "id": 14, "title": "Active Conditions", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 8, "y": 11, "w": 8, "h": 5 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.99, rate(necronia_grains_conditions_active_bucket[$interval]))",
+              "legendFormat": "Conditions p99"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short" } }
+        },
+    
+        { "id": 300, "title": "Movement", "type": "row", "gridPos": { "x": 0, "y": 16, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 20, "title": "Move Success Rate", "type": "gauge",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 17, "w": 5, "h": 5 },
+          "targets": [{
+            "expr": "100 * (rate(necronia_grains_moves_attempted_total[$interval]) - rate(necronia_grains_moves_blocked_total[$interval])) / (rate(necronia_grains_moves_attempted_total[$interval]) + 0.001)",
+            "legendFormat": "Success %"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent", "min": 0, "max": 100,
+              "thresholds": { "steps": [
+                { "value": null, "color": "red" },
+                { "value": 70, "color": "yellow" },
+                { "value": 90, "color": "green" }
+              ] }
+            }
+          },
+          "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+        },
+    
+        {
+          "id": 21, "title": "Move Attempts & Blocks", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 5, "y": 17, "w": 9, "h": 5 },
+          "targets": [
+            { "expr": "rate(necronia_grains_moves_attempted_total[$interval])", "legendFormat": "Attempted" },
+            { "expr": "rate(necronia_grains_moves_blocked_total[$interval])", "legendFormat": "Blocked" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        {
+          "id": 22, "title": "Map Description Build Time", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 14, "y": 17, "w": 10, "h": 5 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.99, rate(necronia_grains_map_description_build_milliseconds_bucket[$interval]))",
+              "legendFormat": "Map desc p99"
+            },
+            {
+              "expr": "histogram_quantile(0.50, rate(necronia_grains_map_description_build_milliseconds_bucket[$interval]))",
+              "legendFormat": "Map desc p50"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "ms" } }
+        },
+    
+        { "id": 400, "title": "Economy", "type": "row", "gridPos": { "x": 0, "y": 22, "w": 24, "h": 1 }, "collapsed": false },
+    
+        {
+          "id": 30, "title": "NPC Interactions / sec (by type)", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 0, "y": 23, "w": 12, "h": 5 },
+          "targets": [
+            { "expr": "rate(necronia_grains_npc_interactions_total[$interval])", "legendFormat": "{{event.type}}" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        },
+    
+        {
+          "id": 31, "title": "Packets Dispatched / sec (by type)", "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "x": 12, "y": 23, "w": 12, "h": 5 },
+          "targets": [
+            { "expr": "rate(necronia_grains_packets_dispatched_total[$interval])", "legendFormat": "{{packet.type}}" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "reqps" } }
+        }
+    
+      ]
+    }
