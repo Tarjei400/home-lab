@@ -27,13 +27,6 @@ spec:
         createrole: true
         passwordSecret:
           name: pg-role-admin
-      - name: paperclip
-        ensure: present
-        login: true
-        superuser: false
-        createdb: false
-        passwordSecret:
-          name: pg-role-paperclip
       - name: necronia
         ensure: present
         login: true
@@ -52,6 +45,5 @@ spec:
   bootstrap:
     initdb:
       postInitSQL:
-        - CREATE DATABASE paperclip;
         - CREATE DATABASE necronia;
         - CREATE DATABASE techyon;

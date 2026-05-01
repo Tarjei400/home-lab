@@ -1,5 +1,0 @@
-repoURL: "ghcr.io/t3chy0n/charts"
-chart: "gitnexus"
-targetRevision: "0.1.0"
-releaseName: "gitnexus"
-namespace: "gitnexus"
