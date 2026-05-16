@@ -1,0 +1,40 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/t3chy0n/github-mcp-proxy
+  # NOTE: bump this after docker-compedium CI publishes the first build.
+  # The convco-driven version will look like `0.1.0` (per docker-compedium pattern).
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+envFromSecret:
+  name: github-mcp-pat-secret
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  host: github-mcp.lab.techyon.dev
+  clusterIssuer: cloudflare-ca
+  tlsSecretName: github-mcp-tls
+  # Defense-in-depth bearer enforcement. The token below is inlined into the
+  # nginx auth-snippet — replace with a real random value (e.g.
+  # `openssl rand -base64 32`) before pushing, and store the same value in
+  # 1Password as item `GH_MCP_BEARER`. The same value goes into the workstation
+  # `~/.claude.json` Authorization header.
+  #
+  # For rotation hygiene this can be swapped to a templated configuration-snippet
+  # sourced from a Secret (see chart values.yaml comments).
+  bearerAuth:
+    enabled: true
+    token: "REPLACE_WITH_BEARER_TOKEN_BEFORE_PUSH"
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    memory: 256Mi
