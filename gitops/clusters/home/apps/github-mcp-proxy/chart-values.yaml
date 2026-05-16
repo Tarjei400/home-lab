@@ -2,10 +2,15 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/t3chy0n/github-mcp-proxy
-  # NOTE: bump this after docker-compedium CI publishes the first build.
-  # The convco-driven version will look like `0.1.0` (per docker-compedium pattern).
   tag: "0.1.0"
   pullPolicy: IfNotPresent
+
+# Pull from GHCR via the `ghcr-docker` Secret rendered by the
+# ghcr-docker.external-secret.yaml manifest in this dir. (Without this the
+# pod hits ImagePullBackOff because the `mcp` namespace doesn't inherit
+# pull secrets from elsewhere — each namespace gets its own.)
+imagePullSecrets:
+  - name: ghcr-docker
 
 envFromSecret:
   name: github-mcp-pat-secret
@@ -20,17 +25,14 @@ ingress:
   host: github-mcp.lab.techyon.dev
   clusterIssuer: cloudflare-ca
   tlsSecretName: github-mcp-tls
-  # Defense-in-depth bearer enforcement. The token below is inlined into the
-  # nginx auth-snippet — replace with a real random value (e.g.
-  # `openssl rand -base64 32`) before pushing, and store the same value in
-  # 1Password as item `GH_MCP_BEARER`. The same value goes into the workstation
-  # `~/.claude.json` Authorization header.
-  #
-  # For rotation hygiene this can be swapped to a templated configuration-snippet
-  # sourced from a Secret (see chart values.yaml comments).
-  bearerAuth:
+  # Basic-auth at the ingress edge. Snippet annotations are disabled
+  # cluster-wide (CVE-2022-4886). The Secret `github-mcp-basic-auth` is
+  # rendered by github-mcp-basic-auth.external-secret.yaml in this dir
+  # (sources username + password from 1Password item GH_MCP_BASIC_AUTH).
+  basicAuth:
     enabled: true
-    token: "REPLACE_WITH_BEARER_TOKEN_BEFORE_PUSH"
+    secretName: github-mcp-basic-auth
+    realm: "MCP"
 
 resources:
   requests:

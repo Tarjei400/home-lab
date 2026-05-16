@@ -1,5 +1,5 @@
 repoURL: "ghcr.io/t3chy0n/charts"
 chart: "mcp-proxy"
-targetRevision: "0.1.0"
+targetRevision: "0.2.0"
 releaseName: "github-mcp-proxy"
 namespace: "mcp"
